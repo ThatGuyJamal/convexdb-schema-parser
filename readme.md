@@ -7,6 +7,21 @@
 - Generate Rust types from your ConvexDB schema.ts file
 - Automatically re-generate the types when the schema.ts file changes
 
+## Supported Types
+
+- [ ] `null`
+- [ ] `boolean`
+- [ ] `int64`
+- [ ] `float64`
+- [ ] `string`
+- [ ] `bytes`
+- [ ] `array`
+- [ ] `object`
+- [ ] `record`
+
+## Limitations
+
+- Nested types are not supported (e.g. `array` of `object` of `any`) yet.
 
 ## Example
 
