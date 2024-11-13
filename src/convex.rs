@@ -3,7 +3,7 @@ use std::path::PathBuf;
 
 use oxc::allocator::Allocator;
 use oxc::diagnostics::OxcDiagnostic;
-use oxc::parser::{Parser, ParserReturn};
+use oxc::parser::Parser;
 use oxc::semantic::SemanticBuilder;
 use oxc::span::SourceType;
 use serde_json::Value as JsonValue;
@@ -63,7 +63,7 @@ pub(crate) struct ConvexFunctionParam
 
 /// Create a convex schema AST from a schema file.
 ///
-pub(crate) fn create_convex_schema_ast(path: PathBuf) -> Result<JsonValue, ConvexTypeGeneratorError>
+pub(crate) fn create_schema_ast(path: PathBuf) -> Result<JsonValue, ConvexTypeGeneratorError>
 {
     let allocator = Allocator::default();
 

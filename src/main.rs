@@ -8,7 +8,7 @@ mod errors;
 use std::path::PathBuf;
 use std::time::Instant;
 
-use convex::create_convex_schema_ast;
+use convex::create_schema_ast;
 use errors::ConvexTypeGeneratorError;
 
 /// Configuration for the type generator
@@ -41,10 +41,10 @@ pub fn generate(config: Configuration) -> Result<(), ConvexTypeGeneratorError>
 
     let schema_path = match config.schema_path.canonicalize() {
         Ok(path) => path,
-        Err(e) => return Err(ConvexTypeGeneratorError::MissingSchemaFile),
+        Err(_) => return Err(ConvexTypeGeneratorError::MissingSchemaFile),
     };
 
-    let ast = create_convex_schema_ast(schema_path)?;
+    let ast = create_schema_ast(schema_path)?;
 
     // write this ast to a json file
     std::fs::write("./debug/ast.json", serde_json::to_string_pretty(&ast).unwrap())
