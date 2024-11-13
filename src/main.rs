@@ -18,8 +18,10 @@ pub struct Configuration
 {
     /// The path to the schema.ts file
     pub schema_path: PathBuf,
-    /// The output file for the generated types
-    pub out_file: String,
+    /// The schema output file for the generated types
+    pub schema_out_file: String,
+    /// The functions output file for the generated types
+    pub functions_out_file: String,
     /// The paths to the function files
     pub function_paths: Vec<PathBuf>,
 }
@@ -30,7 +32,8 @@ impl Default for Configuration
     {
         Self {
             schema_path: PathBuf::from("./convex/schema.ts"),
-            out_file: "schema.rs".to_string(),
+            schema_out_file: "./src/schema.rs".to_string(),
+            functions_out_file: "./src/functions.rs".to_string(),
             function_paths: Vec::new(),
         }
     }
@@ -77,7 +80,8 @@ fn main()
 {
     let config = Configuration {
         schema_path: PathBuf::from("./convex/schema.ts"),
-        out_file: "./src/schema.rs".to_string(),
+        schema_out_file: "./src/schema.rs".to_string(),
+        functions_out_file: "./src/functions.rs".to_string(),
         function_paths: vec![PathBuf::from("./convex/test.ts"), PathBuf::from("./convex/test2.ts")],
     };
 
