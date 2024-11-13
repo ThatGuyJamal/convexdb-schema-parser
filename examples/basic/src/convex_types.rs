@@ -24,10 +24,9 @@ impl GetGameArgs
 
 impl From<GetGameArgs> for std::collections::BTreeMap<String, serde_json::Value>
 {
-    fn from(args: GetGameArgs) -> Self
+    fn from(_args: GetGameArgs) -> Self
     {
-        let mut map = std::collections::BTreeMap::new();
-        map
+        std::collections::BTreeMap::new()
     }
 }
 
@@ -46,11 +45,11 @@ impl SaveGameArgs
 
 impl From<SaveGameArgs> for std::collections::BTreeMap<String, serde_json::Value>
 {
-    fn from(args: SaveGameArgs) -> Self
+    fn from(_args: SaveGameArgs) -> Self
     {
         let mut map = std::collections::BTreeMap::new();
-        map.insert("win_count".to_string(), serde_json::to_value(args.win_count).unwrap());
-        map.insert("loss_count".to_string(), serde_json::to_value(args.loss_count).unwrap());
+        map.insert("win_count".to_string(), serde_json::to_value(_args.win_count).unwrap());
+        map.insert("loss_count".to_string(), serde_json::to_value(_args.loss_count).unwrap());
         map
     }
 }

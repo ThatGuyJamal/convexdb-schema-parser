@@ -248,18 +248,23 @@ fn generate_function_code(function: ConvexFunction) -> String
         "impl From<{}> for std::collections::BTreeMap<String, serde_json::Value> {{\n",
         struct_name
     ));
-    code.push_str(&format!("    fn from(args: {}) -> Self {{\n", struct_name));
-    code.push_str("        let mut map = std::collections::BTreeMap::new();\n");
+    code.push_str(&format!("    fn from(_args: {}) -> Self {{\n", struct_name));
 
-    // Convert each field to a serde_json::Value and insert into map
-    for param in &function.params {
-        code.push_str(&format!(
-            "        map.insert(\"{}\".to_string(), serde_json::to_value(args.{}).unwrap());\n",
-            param.name, param.name
-        ));
+    // Only create map and insert values if there are parameters
+    if function.params.is_empty() {
+        code.push_str("        std::collections::BTreeMap::new()\n");
+    } else {
+        code.push_str("        let mut map = std::collections::BTreeMap::new();\n");
+        // Convert each field to a serde_json::Value and insert into map
+        for param in &function.params {
+            code.push_str(&format!(
+                "        map.insert(\"{}\".to_string(), serde_json::to_value(_args.{}).unwrap());\n",
+                param.name, param.name
+            ));
+        }
+        code.push_str("        map\n");
     }
 
-    code.push_str("        map\n");
     code.push_str("    }\n");
     code.push_str("}\n\n");
 
