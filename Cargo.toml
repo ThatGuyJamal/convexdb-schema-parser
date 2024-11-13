@@ -1,10 +1,10 @@
 [workspace]
-members = ["examples/simple"]
+members = ["examples/basic"]
 
 [package]
 name = "convex-typegen"
 version = "0.1.0"
-description = "Type safe Rust bindings for ConvexDB"
+description = "Type safe bindings for ConvexDB in Rust"
 authors = ["Jamal Lyons"]
 license = "MIT"
 edition = "2021"
@@ -45,3 +45,7 @@ lto = "thin"       # Enable link-time optimization
 codegen-units = 1  # Maximize performance
 panic = "abort"    # Better optimizations and smaller binaries
 strip = true       # Remove debug symbols from the binary
+
+[[bin]]
+name = "basic"
+path = "examples/basic/src/main.rs"

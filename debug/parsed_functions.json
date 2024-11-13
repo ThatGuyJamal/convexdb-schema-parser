@@ -1,5 +1,17 @@
 [
   {
+    "name": "testMutation",
+    "params": [
+      {
+        "name": "saveTest",
+        "data_type": {
+          "type": "string"
+        }
+      }
+    ],
+    "type_": "mutation"
+  },
+  {
     "name": "testQuery",
     "params": [
       {
@@ -145,17 +157,5 @@
       }
     ],
     "type_": "query"
-  },
-  {
-    "name": "testMutation",
-    "params": [
-      {
-        "name": "saveTest",
-        "data_type": {
-          "type": "string"
-        }
-      }
-    ],
-    "type_": "mutation"
   }
 ]

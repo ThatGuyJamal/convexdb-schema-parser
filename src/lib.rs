@@ -78,18 +78,18 @@ pub fn generate(config: Configuration) -> Result<(), ConvexTypeGeneratorError>
     Ok(())
 }
 
-fn main()
-{
-    let config = Configuration {
-        function_paths: vec![PathBuf::from("./convex/test.ts"), PathBuf::from("./convex/test2.ts")],
-        ..Default::default()
-    };
+// fn main()
+// {
+//     let config = Configuration {
+//         function_paths: vec![PathBuf::from("./convex/test.ts"), PathBuf::from("./convex/test2.ts")],
+//         ..Default::default()
+//     };
 
-    match generate(config) {
-        Ok(_) => println!("Types generated successfully"),
-        Err(e) => println!("Error generating types: {}", e),
-    }
-}
+//     match generate(config) {
+//         Ok(_) => println!("Types generated successfully"),
+//         Err(e) => println!("Error generating types: {}", e),
+//     }
+// }
 
 #[cfg(debug_assertions)]
 fn write_to_file(path: &str, content: &str) -> Result<(), std::io::Error>

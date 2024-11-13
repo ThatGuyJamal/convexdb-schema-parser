@@ -1,0 +1,11 @@
+[package]
+name = "basic"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+convex = "0.8.1"
+tokio = { version = "1.41.1", features = ["full"] }
+
+[build-dependencies]
+convex-typegen = { path = "../../" }

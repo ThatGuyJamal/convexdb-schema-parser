@@ -65,6 +65,19 @@ pub struct TestTable {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TestMutationArgs {
+    pub saveTest: String,
+}
+
+impl From<TestMutationArgs> for std::collections::BTreeMap<String, serde_json::Value> {
+    fn from(args: TestMutationArgs) -> Self {
+        let mut map = std::collections::BTreeMap::new();
+        map.insert("saveTest".to_string(), serde_json::to_value(args.saveTest).unwrap());
+        map
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TestQueryArgs {
     pub test: String,
 }
@@ -107,19 +120,6 @@ impl From<ComplexQueryArgs> for std::collections::BTreeMap<String, serde_json::V
         map.insert("pagination".to_string(), serde_json::to_value(args.pagination).unwrap());
         map.insert("sort".to_string(), serde_json::to_value(args.sort).unwrap());
         map.insert("nested".to_string(), serde_json::to_value(args.nested).unwrap());
-        map
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct TestMutationArgs {
-    pub saveTest: String,
-}
-
-impl From<TestMutationArgs> for std::collections::BTreeMap<String, serde_json::Value> {
-    fn from(args: TestMutationArgs) -> Self {
-        let mut map = std::collections::BTreeMap::new();
-        map.insert("saveTest".to_string(), serde_json::to_value(args.saveTest).unwrap());
         map
     }
 }
