@@ -6,7 +6,6 @@ use oxc::diagnostics::OxcDiagnostic;
 use oxc::parser::{Parser, ParserReturn};
 use oxc::semantic::SemanticBuilder;
 use oxc::span::SourceType;
-use serde::Serialize;
 use serde_json::Value as JsonValue;
 
 use crate::errors::ConvexTypeGeneratorError;
@@ -62,21 +61,8 @@ pub(crate) struct ConvexFunctionParam
     pub(crate) data_type: JsonValue,
 }
 
-/// A wrapper around the `oxc::ast::ast::Program` to allow for serialization.
-pub(crate) struct ProgramWrapper<'a>(pub(crate) &'a oxc::ast::ast::Program<'a>);
-
-impl<'a> Serialize for ProgramWrapper<'a> {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(&format!("{:?}", self.0))
-    }
-}
-
 /// Create a convex schema AST from a schema file.
-/// 
-/// 
+///
 pub(crate) fn create_convex_schema_ast(path: PathBuf) -> Result<JsonValue, ConvexTypeGeneratorError>
 {
     let allocator = Allocator::default();
@@ -98,7 +84,7 @@ pub(crate) fn create_convex_schema_ast(path: PathBuf) -> Result<JsonValue, Conve
 
     let semantics = SemanticBuilder::new()
         .with_check_syntax_error(true)  // Enable extra syntax error checking
-        .build(&ret.program);                                   // Produce the `Semantic`
+        .build(&ret.program); // Produce the `Semantic`
     errors.extend(semantics.errors);
 
     if !errors.is_empty() {
@@ -112,11 +98,7 @@ pub(crate) fn create_convex_schema_ast(path: PathBuf) -> Result<JsonValue, Conve
         return Err(ConvexTypeGeneratorError::EmptySchemaFile);
     }
 
-    let ast_string = serde_json::to_string_pretty(&ProgramWrapper(&ret.program))
-        .map_err(|e| ConvexTypeGeneratorError::SerializationFailed(e))?;
+    let ast = serde_json::to_value(&ret.program).map_err(|e| ConvexTypeGeneratorError::SerializationFailed(e))?;
 
-    let ast_value = serde_json::from_str(&ast_string)
-        .map_err(|e| ConvexTypeGeneratorError::SerializationFailed(e))?;
-    
-    Ok(ast_value)
+    Ok(ast)
 }
