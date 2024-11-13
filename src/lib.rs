@@ -1,7 +1,3 @@
-#![allow(dead_code)]
-#![allow(unused_imports)]
-#![allow(unused_variables)]
-
 mod codegen;
 mod convex;
 mod errors;
@@ -9,20 +5,22 @@ mod errors;
 use std::io::Write;
 use std::path::PathBuf;
 use std::time::Instant;
-use std::vec;
 
 use codegen::generate_code;
 use convex::{create_functions_ast, create_schema_ast, parse_function_ast, parse_schema_ast};
 use errors::ConvexTypeGeneratorError;
 
-/// Configuration for the type generator
+/// Configuration options for the type generator.
+#[derive(Debug, Clone)]
 pub struct Configuration
 {
-    /// The path to the schema.ts file
+    /// Path to the Convex schema file (default: "convex/schema.ts")
     pub schema_path: PathBuf,
-    /// The output file for the generated types
+
+    /// Output file path for generated Rust types (default: "src/convex_types.rs")
     pub out_file: String,
-    /// The paths to the function files
+
+    /// Paths to Convex function files for generating function argument types
     pub function_paths: Vec<PathBuf>,
 }
 
@@ -38,7 +36,21 @@ impl Default for Configuration
     }
 }
 
-/// Main entrypoint for the type generator
+/// Generates Rust types from Convex schema and function definitions.
+///
+/// # Arguments
+/// * `config` - Configuration options for the type generation process
+///
+/// # Returns
+/// * `Ok(())` if type generation succeeds
+/// * `Err(ConvexTypeGeneratorError)` if an error occurs during generation
+///
+/// # Errors
+/// This function can fail for several reasons:
+/// * Schema file not found
+/// * Invalid schema structure
+/// * IO errors when reading/writing files
+/// * Parse errors in schema or function files
 pub fn generate(config: Configuration) -> Result<(), ConvexTypeGeneratorError>
 {
     let start_time = Instant::now();

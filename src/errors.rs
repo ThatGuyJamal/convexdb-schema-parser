@@ -1,46 +1,68 @@
 use std::fmt;
 
-/// Errors that can occur during the type generation
+/// Errors that can occur during the type generation process.
 #[derive(Debug)]
 pub enum ConvexTypeGeneratorError
 {
-    /// The schema file was not found
+    /// The schema file could not be found at the specified path
     MissingSchemaFile,
-    /// The schema file failed to parse
+
+    /// Failed to parse a source file
     ParsingFailed
     {
-        file: String, details: String
+        /// Path to the file that failed to parse
+        file: String,
+        /// Details about the parsing failure
+        details: String,
     },
-    /// The schema file is empty
+
+    /// The schema file exists but is empty
     EmptySchemaFile
     {
-        file: String
+        /// Path to the empty schema file
+        file: String,
     },
-    /// The path doesn't have a file name component
+
+    /// The provided path doesn't have a valid file name component
     InvalidPath(String),
+
     /// The file name contains invalid Unicode characters
     InvalidUnicode(String),
-    /// The schema file failed to serialize
+    /// Failed to serialize the AST to JSON
     SerializationFailed(serde_json::Error),
-    /// An IO error occurred
+
+    /// An IO error occurred while reading or writing files
     IOError
     {
-        file: String, error: std::io::Error
+        /// Path to the file where the error occurred
+        file: String,
+        /// The underlying IO error
+        error: std::io::Error,
     },
-    /// The schema file is invalid
+
+    /// The schema file has invalid structure or content
     InvalidSchema
     {
-        context: String, details: String
+        /// Context where the invalid schema was found
+        context: String,
+        /// Details about why the schema is invalid
+        details: String,
     },
-    /// Circular reference detected
+
+    /// A circular reference was detected in type definitions
     CircularReference
     {
-        path: Vec<String>
+        /// The path of types that form the circular reference
+        path: Vec<String>,
     },
-    /// Invalid type found
+
+    /// An invalid type name was encountered
     InvalidType
     {
-        found: String, valid_types: Vec<String>
+        /// The invalid type that was found
+        found: String,
+        /// List of valid type names
+        valid_types: Vec<String>,
     },
 }
 
@@ -95,3 +117,18 @@ impl From<std::io::Error> for ConvexTypeGeneratorError
 
 // Implement std::error::Error for better error handling
 impl std::error::Error for ConvexTypeGeneratorError {}
+
+impl ConvexTypeGeneratorError
+{
+    /// Adds file context to an IO error
+    pub fn with_file_context(self, file: impl Into<String>) -> Self
+    {
+        match self {
+            Self::IOError { error, .. } => Self::IOError {
+                file: file.into(),
+                error,
+            },
+            other => other,
+        }
+    }
+}

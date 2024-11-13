@@ -65,9 +65,23 @@ pub(crate) struct ConvexFunctionParam
     pub(crate) data_type: JsonValue,
 }
 
-/// Creates a schema AST from a schema path.
+/// Creates an AST from a schema file.
+///
+/// # Arguments
+/// * `path` - Path to the schema file
+///
+/// # Errors
+/// Returns an error if:
+/// * The file cannot be read
+/// * The file contains invalid syntax
+/// * The AST cannot be generated
 pub(crate) fn create_schema_ast(path: PathBuf) -> Result<JsonValue, ConvexTypeGeneratorError>
 {
+    // Validate path exists before processing
+    if !path.exists() {
+        return Err(ConvexTypeGeneratorError::MissingSchemaFile);
+    }
+
     Ok(generate_ast(&path)?)
 }
 
@@ -169,7 +183,7 @@ pub(crate) fn parse_schema_ast(ast: JsonValue) -> Result<ConvexSchema, ConvexTyp
                     })?;
 
             // Get column type by looking at the property chain
-            let mut context = TypeContext::new("schema".to_string());
+            let mut context = TypeContext::new(context.to_string());
             let column_type = extract_column_type(column_prop, &mut context)?;
 
             columns.push(ConvexColumn {
@@ -226,7 +240,7 @@ fn extract_column_type(column_prop: &JsonValue, context: &mut TypeContext) -> Re
     let type_name = callee["property"]["name"]
         .as_str()
         .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema {
-            context: context.type_path.join("."),
+            context: context.get_error_context(),
             details: "Invalid column type".to_string(),
         })?;
 
@@ -472,18 +486,31 @@ fn extract_function_params(config: &JsonValue, file_name: &str)
     Ok(params)
 }
 
-/// Internal helper function to generate an AST from a source file
+/// Generates an AST from a source file.
+///
+/// # Arguments
+/// * `path` - Path to the source file
+///
+/// # Errors
+/// Returns an error if the file cannot be parsed or contains invalid syntax
 fn generate_ast(path: &PathBuf) -> Result<JsonValue, ConvexTypeGeneratorError>
 {
     let path_str = path.to_string_lossy().to_string();
     let allocator = Allocator::default();
-    let source_type = SourceType::from_path(path).map_err(|_| ConvexTypeGeneratorError::ParsingFailed {
-        file: path_str.clone(),
-        details: "Failed to determine source type".to_string(),
-    })?;
+
+    // Read file contents
     let source_text = std::fs::read_to_string(path).map_err(|error| ConvexTypeGeneratorError::IOError {
         file: path_str.clone(),
         error,
+    })?;
+
+    if source_text.trim().is_empty() {
+        return Err(ConvexTypeGeneratorError::EmptySchemaFile { file: path_str });
+    }
+
+    let source_type = SourceType::from_path(path).map_err(|_| ConvexTypeGeneratorError::ParsingFailed {
+        file: path_str.clone(),
+        details: "Failed to determine source type".to_string(),
     })?;
 
     let mut errors: Vec<OxcDiagnostic> = Vec::new();
@@ -537,37 +564,12 @@ fn validate_type_name(type_name: &str) -> Result<(), ConvexTypeGeneratorError>
     Ok(())
 }
 
-#[derive(Debug)]
-pub struct ParseContext
-{
-    pub file_name: String,
-    pub type_path: Vec<String>,
-}
-
-impl ParseContext
-{
-    fn push(&mut self, segment: &str)
-    {
-        self.type_path.push(segment.to_string());
-    }
-
-    fn pop(&mut self)
-    {
-        self.type_path.pop();
-    }
-
-    fn current_path(&self) -> String
-    {
-        self.type_path.join(".")
-    }
-}
-
 #[derive(Debug, Default)]
 struct TypeContext
 {
     /// Stack of type paths being processed (includes type name and path)
     type_stack: Vec<(String, String)>, // (type_name, full_path)
-    /// Current file being processed
+    /// Current file being processed - used for error context
     file_name: String,
     /// Current path in the type structure
     type_path: Vec<String>,
@@ -608,9 +610,21 @@ impl TypeContext
         Ok(())
     }
 
+    /// Get the current context for error messages
+    fn get_error_context(&self) -> String
+    {
+        format!("{}:{}", self.file_name, self.type_path.join("."))
+    }
+
+    /// Removes the most recently pushed type from the stack
     fn pop_type(&mut self)
     {
-        self.type_stack.pop();
+        // Only pop if the last type was an object (matches push_type behavior)
+        if let Some((type_name, _)) = self.type_stack.last() {
+            if type_name == "object" {
+                self.type_stack.pop();
+            }
+        }
     }
 }
 

@@ -1,6 +1,6 @@
 use std::io::{Seek, SeekFrom, Write};
 
-use serde_json::{json, Value as JsonValue};
+use serde_json::Value as JsonValue;
 
 use crate::convex::{ConvexFunction, ConvexFunctions, ConvexSchema, ConvexTable};
 use crate::errors::ConvexTypeGeneratorError;
@@ -148,12 +148,6 @@ fn generate_table_code(table: ConvexTable) -> String
     code
 }
 
-/// Generate an enum name for a union type
-fn generate_union_enum_name(prefix: &str, field_name: &str) -> String
-{
-    format!("{}{}", capitalize_first_letter(prefix), capitalize_first_letter(field_name))
-}
-
 /// Convert a Convex type to its corresponding Rust type
 fn convex_type_to_rust_type(data_type: &JsonValue, table_name: Option<&str>, field_name: Option<&str>) -> String
 {
@@ -220,31 +214,6 @@ fn convex_type_to_rust_type(data_type: &JsonValue, table_name: Option<&str>, fie
 
         _ => "serde_json::Value".to_string(), // fallback for unknown types
     }
-}
-
-/// Generate variants for a union type
-fn generate_union_variants(union_type: &JsonValue) -> Vec<String>
-{
-    let mut variants = Vec::new();
-
-    if let Some(union_variants) = union_type["variants"].as_array() {
-        for variant in union_variants {
-            match variant["type"].as_str() {
-                Some("literal") => {
-                    if let Some(value) = variant["value"]["value"].as_str() {
-                        variants.push(format!("    {}", to_pascal_case(value)));
-                    }
-                }
-                Some(type_name) => {
-                    let rust_type = convex_type_to_rust_type(variant, None, None);
-                    variants.push(format!("    {}({})", to_pascal_case(type_name), rust_type));
-                }
-                None => continue,
-            }
-        }
-    }
-
-    variants
 }
 
 /// Generate the code for a function.
