@@ -1,3 +1,5 @@
+use std::fmt;
+
 /// Errors that can occur during the type generation
 #[derive(Debug)]
 pub enum ConvexTypeGeneratorError
@@ -20,10 +22,22 @@ pub enum ConvexTypeGeneratorError
     InvalidSchema(String),
 }
 
-impl std::fmt::Display for ConvexTypeGeneratorError
+impl fmt::Display for ConvexTypeGeneratorError
 {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
     {
         write!(f, "{:?}", self)
     }
 }
+
+// Add this implementation to convert std::io::Error to ConvexTypeGeneratorError
+impl From<std::io::Error> for ConvexTypeGeneratorError
+{
+    fn from(error: std::io::Error) -> Self
+    {
+        ConvexTypeGeneratorError::IOError(error)
+    }
+}
+
+// Implement std::error::Error for better error handling
+impl std::error::Error for ConvexTypeGeneratorError {}

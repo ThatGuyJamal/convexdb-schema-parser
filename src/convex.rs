@@ -330,9 +330,23 @@ fn extract_function_params(config: &JsonValue) -> Result<Vec<ConvexFunctionParam
     if let Some(properties) = config["properties"].as_array() {
         for prop in properties {
             if prop["key"]["name"].as_str() == Some("args") {
+                // Ensure args is an object
+                if prop["value"]["type"].as_str() != Some("ObjectExpression") {
+                    return Err(ConvexTypeGeneratorError::InvalidSchema(
+                        "Function args must be an object".into()
+                    ));
+                }
+
                 // Get the args object value
                 if let Some(args_props) = prop["value"]["properties"].as_array() {
                     for arg_prop in args_props {
+                        // Validate argument property structure
+                        if !arg_prop["type"].as_str().map_or(false, |t| t == "ObjectProperty") {
+                            return Err(ConvexTypeGeneratorError::InvalidSchema(
+                                "Invalid argument property structure".into()
+                            ));
+                        }
+
                         // Get parameter name
                         let param_name = arg_prop["key"]["name"]
                             .as_str()
@@ -347,6 +361,7 @@ fn extract_function_params(config: &JsonValue) -> Result<Vec<ConvexFunctionParam
                         });
                     }
                 }
+                break; // Found args object, no need to continue
             }
         }
     }
