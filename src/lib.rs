@@ -4,7 +4,6 @@
 
 mod codegen;
 mod convex;
-mod convex_types;
 mod errors;
 
 use std::io::Write;
