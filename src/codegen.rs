@@ -248,29 +248,33 @@ fn generate_union_variants(union_type: &JsonValue) -> Vec<String>
 }
 
 /// Generate the code for a function.
-fn generate_function_code(function: ConvexFunction) -> String {
+fn generate_function_code(function: ConvexFunction) -> String
+{
     let mut code = String::new();
-    
+
     // Generate the args struct name
     let struct_name = format!("{}Args", capitalize_first_letter(&function.name));
-    
+
     // Generate struct with derive macros
     code.push_str("#[derive(Debug, Clone, Serialize, Deserialize)]\n");
     code.push_str(&format!("pub struct {} {{\n", struct_name));
-    
+
     // Generate fields for each parameter
     for param in &function.params {
         let rust_type = convex_type_to_rust_type(&param.data_type, None, None);
         code.push_str(&format!("    pub {}: {},\n", param.name, rust_type));
     }
-    
+
     code.push_str("}\n\n");
-    
+
     // Generate From implementation to convert to BTreeMap
-    code.push_str(&format!("impl From<{}> for std::collections::BTreeMap<String, serde_json::Value> {{\n", struct_name));
+    code.push_str(&format!(
+        "impl From<{}> for std::collections::BTreeMap<String, serde_json::Value> {{\n",
+        struct_name
+    ));
     code.push_str(&format!("    fn from(args: {}) -> Self {{\n", struct_name));
     code.push_str("        let mut map = std::collections::BTreeMap::new();\n");
-    
+
     // Convert each field to a serde_json::Value and insert into map
     for param in &function.params {
         code.push_str(&format!(
@@ -278,11 +282,11 @@ fn generate_function_code(function: ConvexFunction) -> String {
             param.name, param.name
         ));
     }
-    
+
     code.push_str("        map\n");
     code.push_str("    }\n");
     code.push_str("}\n\n");
-    
+
     code
 }
 

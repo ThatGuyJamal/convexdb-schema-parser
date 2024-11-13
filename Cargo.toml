@@ -23,7 +23,7 @@ keywords = ["convex", "rust", "typegen", "database", "types"]
 # rust-version = "1.70.0"
 
 [dependencies]
-oxc = { version = "0.36.0", features = ["semantic", "serialize"] }
+oxc = { version = "0.36.0", features = ["full", "serialize"] }
 serde = { version = "1.0.215", features = ["derive"] }
 serde_json = "1.0.132"
 
@@ -46,6 +46,7 @@ codegen-units = 1  # Maximize performance
 panic = "abort"    # Better optimizations and smaller binaries
 strip = true       # Remove debug symbols from the binary
 
+# Example binaries
 [[bin]]
 name = "basic"
 path = "examples/basic/src/main.rs"
