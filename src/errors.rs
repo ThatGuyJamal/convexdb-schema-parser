@@ -8,6 +8,10 @@ pub enum ConvexTypeGeneratorError
     ParsingFailed,
     /// The schema file is empty
     EmptySchemaFile,
+    /// The path doesn't have a file name component
+    InvalidPath,
+    /// The file name contains invalid Unicode characters
+    InvalidUnicode,
     /// The schema file failed to serialize
     SerializationFailed(serde_json::Error),
     /// An IO error occurred

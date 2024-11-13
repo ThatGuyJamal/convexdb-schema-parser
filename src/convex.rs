@@ -61,13 +61,36 @@ pub(crate) struct ConvexFunctionParam
     pub(crate) data_type: JsonValue,
 }
 
-/// Create a convex schema AST from a schema file.
-///
+/// Creates a schema AST from a schema path.
 pub(crate) fn create_schema_ast(path: PathBuf) -> Result<JsonValue, ConvexTypeGeneratorError>
 {
-    let allocator = Allocator::default();
+    Ok(generate_ast(&path)?)
+}
 
-    let source_type = SourceType::from_path(path.clone()).map_err(|_| ConvexTypeGeneratorError::ParsingFailed)?;
+/// Creates a map of all convex functions from a list of function paths.
+pub(crate) fn create_functions_ast(paths: Vec<PathBuf>) -> Result<HashMap<String, JsonValue>, ConvexTypeGeneratorError>
+{
+    let mut functions = HashMap::new();
+
+    for path in paths {
+        let function_ast = generate_ast(&path)?;
+        let file_name = path
+            .file_name()
+            .ok_or(ConvexTypeGeneratorError::InvalidPath)?
+            .to_str()
+            .ok_or(ConvexTypeGeneratorError::InvalidUnicode)?;
+
+        functions.insert(file_name.to_string(), function_ast);
+    }
+
+    Ok(functions)
+}
+
+/// Internal helper function to generate an AST from a source file
+fn generate_ast(path: &PathBuf) -> Result<JsonValue, ConvexTypeGeneratorError>
+{
+    let allocator = Allocator::default();
+    let source_type = SourceType::from_path(path).map_err(|_| ConvexTypeGeneratorError::ParsingFailed)?;
     let source_text = std::fs::read_to_string(path).map_err(ConvexTypeGeneratorError::IOError)?;
 
     let mut errors: Vec<OxcDiagnostic> = Vec::new();
@@ -82,9 +105,11 @@ pub(crate) fn create_schema_ast(path: PathBuf) -> Result<JsonValue, ConvexTypeGe
         return Err(ConvexTypeGeneratorError::ParsingFailed);
     }
 
-    let semantics = SemanticBuilder::new()
-        .with_check_syntax_error(true)  // Enable extra syntax error checking
-        .build(&ret.program); // Produce the `Semantic`
+    if ret.program.is_empty() {
+        return Err(ConvexTypeGeneratorError::EmptySchemaFile);
+    }
+
+    let semantics = SemanticBuilder::new().with_check_syntax_error(true).build(&ret.program);
     errors.extend(semantics.errors);
 
     if !errors.is_empty() {
@@ -94,11 +119,5 @@ pub(crate) fn create_schema_ast(path: PathBuf) -> Result<JsonValue, ConvexTypeGe
         return Err(ConvexTypeGeneratorError::ParsingFailed);
     }
 
-    if ret.program.is_empty() {
-        return Err(ConvexTypeGeneratorError::EmptySchemaFile);
-    }
-
-    let ast = serde_json::to_value(&ret.program).map_err(|e| ConvexTypeGeneratorError::SerializationFailed(e))?;
-
-    Ok(ast)
+    serde_json::to_value(&ret.program).map_err(ConvexTypeGeneratorError::SerializationFailed)
 }
