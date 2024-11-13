@@ -25,6 +25,10 @@ A blazing fast Rust type generator for [ConvexDB](https://www.convex.dev) schema
 1. Add dependencies to your `Cargo.toml`:
 
 ```toml
+[dependencies]
+convex-typegen = "0.1.0"
+
+[build-dependencies]
 convex-typegen = "0.1.0"
 ```
 
