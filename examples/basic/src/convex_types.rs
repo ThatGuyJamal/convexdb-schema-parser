@@ -4,62 +4,56 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Clone)]
-pub struct GamesTable
-{
+pub struct GamesTable {
     pub win_count: f64,
     pub loss_count: f64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct GetGameArgs {}
+pub struct GetGameArgs {
+}
 
-impl GetGameArgs
-{
+impl GetGameArgs {
     /// Returns the fully qualified function path for use with Convex client
     pub const FUNCTION_PATH: &'static str = "games:getGame";
 }
 
-impl From<GetGameArgs> for std::collections::BTreeMap<String, serde_json::Value>
-{
-    fn from(_args: GetGameArgs) -> Self
-    {
+impl From<GetGameArgs> for std::collections::BTreeMap<String, serde_json::Value> {
+    fn from(_args: GetGameArgs) -> Self {
         std::collections::BTreeMap::new()
     }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct WinGameArgs {}
+pub struct WinGameArgs {
+}
 
-impl WinGameArgs
-{
+impl WinGameArgs {
     /// Returns the fully qualified function path for use with Convex client
     pub const FUNCTION_PATH: &'static str = "games:winGame";
 }
 
-impl From<WinGameArgs> for std::collections::BTreeMap<String, serde_json::Value>
-{
-    fn from(_args: WinGameArgs) -> Self
-    {
+impl From<WinGameArgs> for std::collections::BTreeMap<String, serde_json::Value> {
+    fn from(_args: WinGameArgs) -> Self {
         std::collections::BTreeMap::new()
     }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct LossGameArgs {}
+pub struct LossGameArgs {
+}
 
-impl LossGameArgs
-{
+impl LossGameArgs {
     /// Returns the fully qualified function path for use with Convex client
     pub const FUNCTION_PATH: &'static str = "games:lossGame";
 }
 
-impl From<LossGameArgs> for std::collections::BTreeMap<String, serde_json::Value>
-{
-    fn from(_args: LossGameArgs) -> Self
-    {
+impl From<LossGameArgs> for std::collections::BTreeMap<String, serde_json::Value> {
+    fn from(_args: LossGameArgs) -> Self {
         std::collections::BTreeMap::new()
     }
 }
+

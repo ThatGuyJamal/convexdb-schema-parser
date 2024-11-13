@@ -84,7 +84,7 @@ pub(crate) fn create_schema_ast(path: PathBuf) -> Result<JsonValue, ConvexTypeGe
         return Err(ConvexTypeGeneratorError::MissingSchemaFile);
     }
 
-    Ok(generate_ast(&path)?)
+    generate_ast(&path)
 }
 
 /// Creates a map of all convex functions from a list of function paths.
@@ -99,7 +99,7 @@ pub(crate) fn create_functions_ast(paths: Vec<PathBuf>) -> Result<HashMap<String
             .file_name()
             .ok_or_else(|| ConvexTypeGeneratorError::InvalidPath(path_str.clone()))?
             .to_str()
-            .ok_or_else(|| ConvexTypeGeneratorError::InvalidUnicode(path_str))?;
+            .ok_or(ConvexTypeGeneratorError::InvalidUnicode(path_str))?;
 
         functions.insert(file_name.to_string(), function_ast);
     }
