@@ -4,37 +4,53 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone)]
-pub struct GamesTable {
+pub struct GamesTable
+{
     pub win_count: f64,
     pub loss_count: f64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct GetGameArgs {
+pub struct GetGameArgs {}
+
+impl GetGameArgs
+{
+    /// Returns the fully qualified function path for use with Convex client
+    pub const FUNCTION_PATH: &'static str = "games:getGame";
 }
 
-impl From<GetGameArgs> for std::collections::BTreeMap<String, serde_json::Value> {
-    fn from(args: GetGameArgs) -> Self {
+impl From<GetGameArgs> for std::collections::BTreeMap<String, serde_json::Value>
+{
+    fn from(args: GetGameArgs) -> Self
+    {
         let mut map = std::collections::BTreeMap::new();
         map
     }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SaveGameArgs {
+pub struct SaveGameArgs
+{
     pub win_count: Option<f64>,
     pub loss_count: Option<f64>,
 }
 
-impl From<SaveGameArgs> for std::collections::BTreeMap<String, serde_json::Value> {
-    fn from(args: SaveGameArgs) -> Self {
+impl SaveGameArgs
+{
+    /// Returns the fully qualified function path for use with Convex client
+    pub const FUNCTION_PATH: &'static str = "games:saveGame";
+}
+
+impl From<SaveGameArgs> for std::collections::BTreeMap<String, serde_json::Value>
+{
+    fn from(args: SaveGameArgs) -> Self
+    {
         let mut map = std::collections::BTreeMap::new();
         map.insert("win_count".to_string(), serde_json::to_value(args.win_count).unwrap());
         map.insert("loss_count".to_string(), serde_json::to_value(args.loss_count).unwrap());
         map
     }
 }
-

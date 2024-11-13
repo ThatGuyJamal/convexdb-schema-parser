@@ -55,6 +55,7 @@ pub(crate) struct ConvexFunction
     pub(crate) name: String,
     pub(crate) params: Vec<ConvexFunctionParam>,
     pub(crate) type_: String,
+    pub(crate) file_name: String,
 }
 
 /// A parameter in a convex function.
@@ -370,6 +371,11 @@ pub(crate) fn parse_function_ast(ast_map: HashMap<String, JsonValue>) -> Result<
     let mut functions = Vec::new();
 
     for (file_name, ast) in ast_map {
+        // Strip the .ts extension from the file name
+        let file_name = file_name.strip_suffix(".ts")
+            .unwrap_or(&file_name)
+            .to_string();
+
         // Get the body array
         let body = ast["body"]
             .as_array()
@@ -415,6 +421,7 @@ pub(crate) fn parse_function_ast(ast_map: HashMap<String, JsonValue>) -> Result<
                                                 name: name.to_string(),
                                                 params,
                                                 type_: fn_type.to_string(),
+                                                file_name: file_name.to_string(),
                                             });
                                         }
                                     }
