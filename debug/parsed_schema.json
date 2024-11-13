@@ -24,37 +24,37 @@
           }
         },
         {
-          "name": "int64",
+          "name": "_int64",
           "data_type": {
             "type": "int64"
           }
         },
         {
-          "name": "float64",
+          "name": "_float64",
           "data_type": {
             "type": "number"
           }
         },
         {
-          "name": "boolean",
+          "name": "_boolean",
           "data_type": {
             "type": "boolean"
           }
         },
         {
-          "name": "string",
+          "name": "_string",
           "data_type": {
             "type": "string"
           }
         },
         {
-          "name": "bytes",
+          "name": "_bytes",
           "data_type": {
             "type": "bytes"
           }
         },
         {
-          "name": "array",
+          "name": "_array",
           "data_type": {
             "elements": {
               "type": "any"
@@ -63,7 +63,7 @@
           }
         },
         {
-          "name": "nested_array",
+          "name": "_nested_array",
           "data_type": {
             "elements": {
               "elements": {
@@ -75,7 +75,7 @@
           }
         },
         {
-          "name": "object",
+          "name": "_object",
           "data_type": {
             "properties": {
               "some": {
@@ -89,7 +89,7 @@
           }
         },
         {
-          "name": "nested_object",
+          "name": "_nested_object",
           "data_type": {
             "properties": {
               "deep": {
@@ -108,19 +108,19 @@
           }
         },
         {
-          "name": "record",
+          "name": "_record",
           "data_type": {
             "keyType": {
-              "type": "any"
+              "type": "string"
             },
             "type": "record",
             "valueType": {
-              "type": "any"
+              "type": "string"
             }
           }
         },
         {
-          "name": "union",
+          "name": "_union",
           "data_type": {
             "type": "union",
             "variants": [
@@ -137,15 +137,15 @@
           }
         },
         {
-          "name": "literal",
+          "name": "_literal",
           "data_type": {
             "type": "union",
             "variants": [
               {
                 "type": "literal",
                 "value": {
-                  "end": 857,
-                  "start": 852,
+                  "end": 875,
+                  "start": 870,
                   "type": "StringLiteral",
                   "value": "asc"
                 }
@@ -153,8 +153,8 @@
               {
                 "type": "literal",
                 "value": {
-                  "end": 876,
-                  "start": 870,
+                  "end": 894,
+                  "start": 888,
                   "type": "StringLiteral",
                   "value": "desc"
                 }

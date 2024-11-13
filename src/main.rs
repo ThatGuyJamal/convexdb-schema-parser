@@ -4,9 +4,9 @@
 
 mod convex;
 mod errors;
-mod schema;
 
-use std::{io::Write, path::PathBuf};
+use std::io::Write;
+use std::path::PathBuf;
 use std::time::Instant;
 use std::vec;
 
@@ -50,13 +50,22 @@ pub fn generate(config: Configuration) -> Result<(), ConvexTypeGeneratorError>
     let functions_ast = create_functions_ast(config.function_paths)?;
 
     write_to_file("./debug/schema_ast.json", &serde_json::to_string_pretty(&schema_ast).unwrap())?;
-    write_to_file("./debug/functions_ast.json", &serde_json::to_string_pretty(&functions_ast).unwrap())?;
+    write_to_file(
+        "./debug/functions_ast.json",
+        &serde_json::to_string_pretty(&functions_ast).unwrap(),
+    )?;
 
     let parsed_schema = parse_schema_ast(schema_ast)?;
     let parsed_functions = parse_function_ast(functions_ast)?;
 
-    write_to_file("./debug/parsed_schema.json", &serde_json::to_string_pretty(&parsed_schema).unwrap())?;
-    write_to_file("./debug/parsed_functions.json", &serde_json::to_string_pretty(&parsed_functions).unwrap())?;
+    write_to_file(
+        "./debug/parsed_schema.json",
+        &serde_json::to_string_pretty(&parsed_schema).unwrap(),
+    )?;
+    write_to_file(
+        "./debug/parsed_functions.json",
+        &serde_json::to_string_pretty(&parsed_functions).unwrap(),
+    )?;
 
     let elapsed = start_time.elapsed();
     println!("Convex Types generated in {}ms", elapsed.as_millis());

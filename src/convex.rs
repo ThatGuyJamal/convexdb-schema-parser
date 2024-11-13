@@ -54,6 +54,7 @@ pub(crate) struct ConvexFunction
 {
     pub(crate) name: String,
     pub(crate) params: Vec<ConvexFunctionParam>,
+    pub(crate) type_: String,
 }
 
 /// A parameter in a convex function.
@@ -77,11 +78,12 @@ pub(crate) fn create_functions_ast(paths: Vec<PathBuf>) -> Result<HashMap<String
 
     for path in paths {
         let function_ast = generate_ast(&path)?;
+        let path_str = path.to_string_lossy().to_string();
         let file_name = path
             .file_name()
-            .ok_or(ConvexTypeGeneratorError::InvalidPath)?
+            .ok_or_else(|| ConvexTypeGeneratorError::InvalidPath(path_str.clone()))?
             .to_str()
-            .ok_or(ConvexTypeGeneratorError::InvalidUnicode)?;
+            .ok_or_else(|| ConvexTypeGeneratorError::InvalidUnicode(path_str))?;
 
         functions.insert(file_name.to_string(), function_ast);
     }
@@ -91,25 +93,37 @@ pub(crate) fn create_functions_ast(paths: Vec<PathBuf>) -> Result<HashMap<String
 
 pub(crate) fn parse_schema_ast(ast: JsonValue) -> Result<ConvexSchema, ConvexTypeGeneratorError>
 {
+    let context = "root";
     // Get the body array
     let body = ast["body"]
         .as_array()
-        .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema("Missing body array".into()))?;
+        .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema {
+            context: context.to_string(),
+            details: "Missing body array".to_string(),
+        })?;
 
     // Find the defineSchema call
-    let define_schema = find_define_schema(body)
-        .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema("Could not find defineSchema call".into()))?;
+    let define_schema = find_define_schema(body).ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema {
+        context: context.to_string(),
+        details: "Could not find defineSchema call".to_string(),
+    })?;
 
     // Get the arguments array of defineSchema
     let schema_args = define_schema["arguments"]
         .as_array()
-        .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema("Missing schema arguments".into()))?;
+        .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema {
+            context: context.to_string(),
+            details: "Missing schema arguments".to_string(),
+        })?;
 
     // Get the first argument which is an object containing table definitions
     let tables_obj = schema_args
         .first()
         .and_then(|arg| arg["properties"].as_array())
-        .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema("Missing table definitions".into()))?;
+        .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema {
+            context: context.to_string(),
+            details: "Missing table definitions".to_string(),
+        })?;
 
     let mut tables = Vec::new();
 
@@ -118,30 +132,45 @@ pub(crate) fn parse_schema_ast(ast: JsonValue) -> Result<ConvexSchema, ConvexTyp
         // Get the table name
         let table_name = table_prop["key"]["name"]
             .as_str()
-            .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema("Invalid table name".into()))?;
+            .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema {
+                context: context.to_string(),
+                details: "Invalid table name".to_string(),
+            })?;
 
         // Get the defineTable call arguments
-        let define_table_args = table_prop["value"]["arguments"]
-            .as_array()
-            .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema("Invalid table definition".into()))?;
+        let define_table_args =
+            table_prop["value"]["arguments"]
+                .as_array()
+                .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema {
+                    context: context.to_string(),
+                    details: "Invalid table definition".to_string(),
+                })?;
 
         // Get the first argument which contains column definitions
         let columns_obj = define_table_args
             .first()
             .and_then(|arg| arg["properties"].as_array())
-            .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema("Missing column definitions".into()))?;
+            .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema {
+                context: context.to_string(),
+                details: "Missing column definitions".to_string(),
+            })?;
 
         let mut columns = Vec::new();
 
         // Iterate through each column definition
         for column_prop in columns_obj {
             // Get column name
-            let column_name = column_prop["key"]["name"]
-                .as_str()
-                .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema("Invalid column name".into()))?;
+            let column_name =
+                column_prop["key"]["name"]
+                    .as_str()
+                    .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema {
+                        context: context.to_string(),
+                        details: "Invalid column name".to_string(),
+                    })?;
 
             // Get column type by looking at the property chain
-            let column_type = extract_column_type(column_prop)?;
+            let mut context = TypeContext::new("schema".to_string());
+            let column_type = extract_column_type(column_prop, &mut context)?;
 
             columns.push(ConvexColumn {
                 name: column_name.to_string(),
@@ -189,23 +218,24 @@ fn find_define_schema(body: &[JsonValue]) -> Option<&JsonValue>
 }
 
 /// Helper function to extract the column type from a column property
-fn extract_column_type(column_prop: &JsonValue) -> Result<JsonValue, ConvexTypeGeneratorError> {
-    // Get the value which contains the type call expression
+fn extract_column_type(column_prop: &JsonValue, context: &mut TypeContext) -> Result<JsonValue, ConvexTypeGeneratorError>
+{
     let value = &column_prop["value"];
-
-    // Get the callee which contains the type information
     let callee = &value["callee"];
 
-    // The type is in the property name of the StaticMemberExpression
     let type_name = callee["property"]["name"]
         .as_str()
-        .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema("Invalid column type".into()))?;
+        .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema {
+            context: context.type_path.join("."),
+            details: "Invalid column type".to_string(),
+        })?;
 
-    // Get any arguments passed to the type function
+    // Validate the type name
+    validate_type_name(type_name)?;
+
     let binding = Vec::new();
     let args = value["arguments"].as_array().unwrap_or(&binding);
 
-    // Create a JSON object representing the type
     let mut type_obj = serde_json::Map::new();
     type_obj.insert("type".to_string(), JsonValue::String(type_name.to_string()));
 
@@ -219,7 +249,7 @@ fn extract_column_type(column_prop: &JsonValue) -> Result<JsonValue, ConvexTypeG
                     "key": { "name": "element" },
                     "value": element_type
                 });
-                let parsed_element_type = extract_column_type(&element_type_prop)?;
+                let parsed_element_type = extract_column_type(&element_type_prop, context)?;
                 type_obj.insert("elements".to_string(), parsed_element_type);
             }
         }
@@ -230,11 +260,15 @@ fn extract_column_type(column_prop: &JsonValue) -> Result<JsonValue, ConvexTypeG
                     let mut prop_types = serde_json::Map::new();
 
                     for prop in properties {
-                        let prop_name = prop["key"]["name"]
-                            .as_str()
-                            .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema("Invalid object property name".into()))?;
+                        let prop_name =
+                            prop["key"]["name"]
+                                .as_str()
+                                .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema {
+                                    context: context.type_path.join("."),
+                                    details: "Invalid object property name".to_string(),
+                                })?;
 
-                        let prop_type = extract_column_type(prop)?;
+                        let prop_type = extract_column_type(prop, context)?;
                         prop_types.insert(prop_name.to_string(), prop_type);
                     }
 
@@ -250,7 +284,7 @@ fn extract_column_type(column_prop: &JsonValue) -> Result<JsonValue, ConvexTypeG
                     "key": { "name": "key" },
                     "value": args[0]
                 });
-                let key_type = extract_column_type(&key_type_prop)?;
+                let key_type = extract_column_type(&key_type_prop, context)?;
                 type_obj.insert("keyType".to_string(), key_type);
 
                 // Second argument is the value type
@@ -258,7 +292,7 @@ fn extract_column_type(column_prop: &JsonValue) -> Result<JsonValue, ConvexTypeG
                     "key": { "name": "value" },
                     "value": args[1]
                 });
-                let value_type = extract_column_type(&value_type_prop)?;
+                let value_type = extract_column_type(&value_type_prop, context)?;
                 type_obj.insert("valueType".to_string(), value_type);
             }
         }
@@ -270,7 +304,7 @@ fn extract_column_type(column_prop: &JsonValue) -> Result<JsonValue, ConvexTypeG
                     "key": { "name": "variant" },
                     "value": variant
                 });
-                let variant_type = extract_column_type(&variant_prop)?;
+                let variant_type = extract_column_type(&variant_prop, context)?;
                 variants.push(variant_type);
             }
             type_obj.insert("variants".to_string(), JsonValue::Array(variants));
@@ -289,17 +323,27 @@ fn extract_column_type(column_prop: &JsonValue) -> Result<JsonValue, ConvexTypeG
         }
     }
 
-    Ok(JsonValue::Object(type_obj))
+    // Build the type object as before...
+    let type_value = JsonValue::Object(type_obj);
+
+    // Check for circular references
+    check_circular_references(&type_value, context)?;
+
+    Ok(type_value)
 }
 
-pub(crate) fn parse_function_ast(ast_map: HashMap<String, JsonValue>) -> Result<ConvexFunctions, ConvexTypeGeneratorError> {
+pub(crate) fn parse_function_ast(ast_map: HashMap<String, JsonValue>) -> Result<ConvexFunctions, ConvexTypeGeneratorError>
+{
     let mut functions = Vec::new();
 
     for (file_name, ast) in ast_map {
         // Get the body array
         let body = ast["body"]
             .as_array()
-            .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema("Missing body array".into()))?;
+            .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema {
+                context: format!("file_{}", file_name),
+                details: "Missing body array".to_string(),
+            })?;
 
         for node in body {
             // Look for export declarations
@@ -310,22 +354,34 @@ pub(crate) fn parse_function_ast(ast_map: HashMap<String, JsonValue>) -> Result<
                         if let Some(declarators) = declaration["declarations"].as_array() {
                             for declarator in declarators {
                                 // Get function name
-                                let name = declarator["id"]["name"]
-                                    .as_str()
-                                    .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema("Missing function name".into()))?;
+                                let name = declarator["id"]["name"].as_str().ok_or_else(|| {
+                                    ConvexTypeGeneratorError::InvalidSchema {
+                                        context: format!("file_{}", file_name),
+                                        details: "Missing function name".to_string(),
+                                    }
+                                })?;
 
                                 // Get the function call (query/mutation/action)
                                 let init = &declarator["init"];
                                 if init["type"].as_str() == Some("CallExpression") {
+                                    // Get the callee to determine function type
+                                    let fn_type = init["callee"]["name"].as_str().ok_or_else(|| {
+                                        ConvexTypeGeneratorError::InvalidSchema {
+                                            context: format!("function_{}", name),
+                                            details: "Missing function type".to_string(),
+                                        }
+                                    })?;
+
                                     // Get the first argument which contains the function config
                                     if let Some(args) = init["arguments"].as_array() {
                                         if let Some(config) = args.first() {
                                             // Extract function parameters from the args property
-                                            let params = extract_function_params(config)?;
+                                            let params = extract_function_params(config, &file_name)?;
 
                                             functions.push(ConvexFunction {
                                                 name: name.to_string(),
                                                 params,
+                                                type_: fn_type.to_string(),
                                             });
                                         }
                                     }
@@ -342,7 +398,9 @@ pub(crate) fn parse_function_ast(ast_map: HashMap<String, JsonValue>) -> Result<
 }
 
 /// Helper function to extract function parameters from the function configuration
-fn extract_function_params(config: &JsonValue) -> Result<Vec<ConvexFunctionParam>, ConvexTypeGeneratorError> {
+fn extract_function_params(config: &JsonValue, file_name: &str)
+    -> Result<Vec<ConvexFunctionParam>, ConvexTypeGeneratorError>
+{
     let mut params = Vec::new();
 
     // Get the args object from the function config
@@ -351,9 +409,10 @@ fn extract_function_params(config: &JsonValue) -> Result<Vec<ConvexFunctionParam
             if prop["key"]["name"].as_str() == Some("args") {
                 // Ensure args is an object
                 if prop["value"]["type"].as_str() != Some("ObjectExpression") {
-                    return Err(ConvexTypeGeneratorError::InvalidSchema(
-                        "Function args must be an object".into()
-                    ));
+                    return Err(ConvexTypeGeneratorError::InvalidSchema {
+                        context: format!("file_{}", file_name),
+                        details: "Function args must be an object".to_string(),
+                    });
                 }
 
                 // Get the args object value
@@ -361,18 +420,24 @@ fn extract_function_params(config: &JsonValue) -> Result<Vec<ConvexFunctionParam
                     for arg_prop in args_props {
                         // Validate argument property structure
                         if !arg_prop["type"].as_str().map_or(false, |t| t == "ObjectProperty") {
-                            return Err(ConvexTypeGeneratorError::InvalidSchema(
-                                "Invalid argument property structure".into()
-                            ));
+                            return Err(ConvexTypeGeneratorError::InvalidSchema {
+                                context: format!("file_{}", file_name),
+                                details: "Invalid argument property structure".to_string(),
+                            });
                         }
 
                         // Get parameter name
-                        let param_name = arg_prop["key"]["name"]
-                            .as_str()
-                            .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema("Invalid parameter name".into()))?;
+                        let param_name =
+                            arg_prop["key"]["name"]
+                                .as_str()
+                                .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema {
+                                    context: format!("file_{}", file_name),
+                                    details: "Invalid parameter name".to_string(),
+                                })?;
 
                         // Get parameter type using the same extraction logic as schema
-                        let param_type = extract_column_type(arg_prop)?;
+                        let mut context = TypeContext::new(format!("function_{}", param_name));
+                        let param_type = extract_column_type(arg_prop, &mut context)?;
 
                         params.push(ConvexFunctionParam {
                             name: param_name.to_string(),
@@ -391,9 +456,16 @@ fn extract_function_params(config: &JsonValue) -> Result<Vec<ConvexFunctionParam
 /// Internal helper function to generate an AST from a source file
 fn generate_ast(path: &PathBuf) -> Result<JsonValue, ConvexTypeGeneratorError>
 {
+    let path_str = path.to_string_lossy().to_string();
     let allocator = Allocator::default();
-    let source_type = SourceType::from_path(path).map_err(|_| ConvexTypeGeneratorError::ParsingFailed)?;
-    let source_text = std::fs::read_to_string(path).map_err(ConvexTypeGeneratorError::IOError)?;
+    let source_type = SourceType::from_path(path).map_err(|_| ConvexTypeGeneratorError::ParsingFailed {
+        file: path_str.clone(),
+        details: "Failed to determine source type".to_string(),
+    })?;
+    let source_text = std::fs::read_to_string(path).map_err(|error| ConvexTypeGeneratorError::IOError {
+        file: path_str.clone(),
+        error,
+    })?;
 
     let mut errors: Vec<OxcDiagnostic> = Vec::new();
 
@@ -404,11 +476,14 @@ fn generate_ast(path: &PathBuf) -> Result<JsonValue, ConvexTypeGeneratorError>
         for error in &errors {
             eprintln!("{error:?}");
         }
-        return Err(ConvexTypeGeneratorError::ParsingFailed);
+        return Err(ConvexTypeGeneratorError::ParsingFailed {
+            file: path_str.clone(),
+            details: "Parser panicked".to_string(),
+        });
     }
 
     if ret.program.is_empty() {
-        return Err(ConvexTypeGeneratorError::EmptySchemaFile);
+        return Err(ConvexTypeGeneratorError::EmptySchemaFile { file: path_str });
     }
 
     let semantics = SemanticBuilder::new().with_check_syntax_error(true).build(&ret.program);
@@ -418,8 +493,168 @@ fn generate_ast(path: &PathBuf) -> Result<JsonValue, ConvexTypeGeneratorError>
         for error in &errors {
             eprintln!("{error:?}");
         }
-        return Err(ConvexTypeGeneratorError::ParsingFailed);
+        return Err(ConvexTypeGeneratorError::ParsingFailed {
+            file: path_str,
+            details: "Semantic analysis failed".to_string(),
+        });
     }
 
     serde_json::to_value(&ret.program).map_err(ConvexTypeGeneratorError::SerializationFailed)
+}
+
+const VALID_TYPES: &[&str] = &[
+    "id",
+    "null",
+    "int64",
+    "number",
+    "boolean",
+    "string",
+    "bytes",
+    "array",
+    "object",
+    "record",
+    "union",
+    "literal",
+    "optional",
+    "intersection",
+];
+
+fn validate_type_name(type_name: &str) -> Result<(), ConvexTypeGeneratorError>
+{
+    if !VALID_TYPES.contains(&type_name) {
+        return Err(ConvexTypeGeneratorError::InvalidType {
+            found: type_name.to_string(),
+            valid_types: VALID_TYPES.iter().map(|&s| s.to_string()).collect(),
+        });
+    }
+    Ok(())
+}
+
+#[derive(Debug)]
+pub struct ParseContext
+{
+    pub file_name: String,
+    pub type_path: Vec<String>,
+}
+
+impl ParseContext
+{
+    fn push(&mut self, segment: &str)
+    {
+        self.type_path.push(segment.to_string());
+    }
+
+    fn pop(&mut self)
+    {
+        self.type_path.pop();
+    }
+
+    fn current_path(&self) -> String
+    {
+        self.type_path.join(".")
+    }
+}
+
+#[derive(Debug, Default)]
+struct TypeContext
+{
+    /// Stack of type names being processed
+    type_stack: Vec<String>,
+    /// Current file being processed
+    file_name: String,
+    /// Current path in the type structure
+    type_path: Vec<String>,
+}
+
+impl TypeContext
+{
+    fn new(file_name: String) -> Self
+    {
+        Self {
+            file_name,
+            type_stack: Vec::new(),
+            type_path: Vec::new(),
+        }
+    }
+
+    fn push_type(&mut self, type_name: &str) -> Result<(), ConvexTypeGeneratorError>
+    {
+        // Check if this type is already being processed
+        if self.type_stack.contains(&type_name.to_string()) {
+            return Err(ConvexTypeGeneratorError::CircularReference {
+                path: self.type_stack.clone(),
+            });
+        }
+        self.type_stack.push(type_name.to_string());
+        Ok(())
+    }
+
+    fn pop_type(&mut self)
+    {
+        self.type_stack.pop();
+    }
+}
+
+fn check_circular_references(type_obj: &JsonValue, context: &mut TypeContext) -> Result<(), ConvexTypeGeneratorError>
+{
+    // Get the type name
+    let type_name = type_obj["type"]
+        .as_str()
+        .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema {
+            context: context.type_path.join("."),
+            details: "Missing type name".to_string(),
+        })?;
+
+    // Push this type onto the stack and check for circles
+    context.push_type(type_name)?;
+
+    // Check nested types based on the current type
+    match type_name {
+        "array" => {
+            if let Some(elements) = type_obj.get("elements") {
+                context.type_path.push("elements".to_string());
+                check_circular_references(elements, context)?;
+                context.type_path.pop();
+            }
+        }
+        "object" => {
+            if let Some(properties) = type_obj.get("properties") {
+                if let Some(props) = properties.as_object() {
+                    for (prop_name, prop_type) in props {
+                        context.type_path.push(prop_name.to_string());
+                        check_circular_references(prop_type, context)?;
+                        context.type_path.pop();
+                    }
+                }
+            }
+        }
+        "record" => {
+            // Check key type
+            if let Some(key_type) = type_obj.get("keyType") {
+                context.type_path.push("keyType".to_string());
+                check_circular_references(key_type, context)?;
+                context.type_path.pop();
+            }
+            // Check value type
+            if let Some(value_type) = type_obj.get("valueType") {
+                context.type_path.push("valueType".to_string());
+                check_circular_references(value_type, context)?;
+                context.type_path.pop();
+            }
+        }
+        "union" | "intersection" => {
+            if let Some(variants) = type_obj["variants"].as_array() {
+                for (i, variant) in variants.iter().enumerate() {
+                    context.type_path.push(format!("variant_{}", i));
+                    check_circular_references(variant, context)?;
+                    context.type_path.pop();
+                }
+            }
+        }
+        _ => {} // Other types don't have nested types
+    }
+
+    // Pop this type from the stack
+    context.pop_type();
+    Ok(())
 }
