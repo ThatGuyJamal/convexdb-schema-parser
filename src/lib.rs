@@ -43,12 +43,13 @@ pub fn generate(config: Configuration) -> Result<(), ConvexTypeGeneratorError>
 {
     let start_time = Instant::now();
 
-    let schema_path = config.schema_path.canonicalize().map_err(|e| {
-        ConvexTypeGeneratorError::IOError {
+    let schema_path = config
+        .schema_path
+        .canonicalize()
+        .map_err(|e| ConvexTypeGeneratorError::IOError {
             file: config.schema_path.to_string_lossy().to_string(),
             error: e,
-        }
-    })?;
+        })?;
 
     let schema_ast = create_schema_ast(schema_path)?;
     let functions_ast = create_functions_ast(config.function_paths)?;
