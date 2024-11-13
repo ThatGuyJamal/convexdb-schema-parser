@@ -522,20 +522,8 @@ fn generate_ast(path: &PathBuf) -> Result<JsonValue, ConvexTypeGeneratorError>
 }
 
 const VALID_TYPES: &[&str] = &[
-    "id",
-    "null",
-    "int64",
-    "number",
-    "boolean",
-    "string",
-    "bytes",
-    "array",
-    "object",
-    "record",
-    "union",
-    "literal",
-    "optional",
-    "any"
+    "id", "null", "int64", "number", "boolean", "string", "bytes", "array", "object", "record", "union", "literal",
+    "optional", "any",
 ];
 
 fn validate_type_name(type_name: &str) -> Result<(), ConvexTypeGeneratorError>
@@ -578,7 +566,7 @@ impl ParseContext
 struct TypeContext
 {
     /// Stack of type paths being processed (includes type name and path)
-    type_stack: Vec<(String, String)>,  // (type_name, full_path)
+    type_stack: Vec<(String, String)>, // (type_name, full_path)
     /// Current file being processed
     file_name: String,
     /// Current path in the type structure
@@ -599,7 +587,7 @@ impl TypeContext
     fn push_type(&mut self, type_name: &str) -> Result<(), ConvexTypeGeneratorError>
     {
         let current_path = self.type_path.join(".");
-        
+
         // Only check for circular references in object types
         // Arrays and other container types can be nested
         if type_name == "object" {
@@ -612,9 +600,7 @@ impl TypeContext
             // Check if this exact path has been seen before
             if self.type_stack.iter().any(|(_, path)| path == &full_path) {
                 return Err(ConvexTypeGeneratorError::CircularReference {
-                    path: self.type_stack.iter()
-                        .map(|(_, path)| path.clone())
-                        .collect(),
+                    path: self.type_stack.iter().map(|(_, path)| path.clone()).collect(),
                 });
             }
             self.type_stack.push((type_name.to_string(), full_path));
