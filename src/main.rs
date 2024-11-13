@@ -4,16 +4,14 @@
 
 mod convex;
 mod errors;
-mod code_generator;
 mod schema;
 
-use std::path::PathBuf;
+use std::{io::Write, path::PathBuf};
 use std::time::Instant;
 use std::vec;
 
 use convex::{create_functions_ast, create_schema_ast, parse_function_ast, parse_schema_ast};
 use errors::ConvexTypeGeneratorError;
-use code_generator::CodeGenerator;
 
 /// Configuration for the type generator
 pub struct Configuration
@@ -51,11 +49,14 @@ pub fn generate(config: Configuration) -> Result<(), ConvexTypeGeneratorError>
     let schema_ast = create_schema_ast(schema_path)?;
     let functions_ast = create_functions_ast(config.function_paths)?;
 
+    write_to_file("./debug/schema_ast.json", &serde_json::to_string_pretty(&schema_ast).unwrap())?;
+    write_to_file("./debug/functions_ast.json", &serde_json::to_string_pretty(&functions_ast).unwrap())?;
+
     let parsed_schema = parse_schema_ast(schema_ast)?;
     let parsed_functions = parse_function_ast(functions_ast)?;
 
-    let generator = CodeGenerator::new(parsed_schema, parsed_functions);
-    generator.generate(&config.out_file)?;
+    write_to_file("./debug/parsed_schema.json", &serde_json::to_string_pretty(&parsed_schema).unwrap())?;
+    write_to_file("./debug/parsed_functions.json", &serde_json::to_string_pretty(&parsed_functions).unwrap())?;
 
     let elapsed = start_time.elapsed();
     println!("Convex Types generated in {}ms", elapsed.as_millis());
@@ -75,4 +76,11 @@ fn main()
         Ok(_) => println!("Types generated successfully"),
         Err(e) => println!("Error generating types: {}", e),
     }
+}
+
+fn write_to_file(path: &str, content: &str) -> Result<(), std::io::Error>
+{
+    let mut file = std::fs::File::create(path)?;
+    file.write_all(content.as_bytes())?;
+    Ok(())
 }

@@ -104,6 +104,7 @@ name = "convex-typegen"
 version = "0.0.1"
 dependencies = [
  "oxc",
+ "serde",
  "serde_json",
  "tempdir",
 ]

@@ -6,6 +6,7 @@ use oxc::diagnostics::OxcDiagnostic;
 use oxc::parser::Parser;
 use oxc::semantic::SemanticBuilder;
 use oxc::span::SourceType;
+use serde::{Deserialize, Serialize};
 use serde_json::{json, Value as JsonValue};
 
 use crate::errors::ConvexTypeGeneratorError;
@@ -13,7 +14,7 @@ use crate::errors::ConvexTypeGeneratorError;
 /// The convex schema.
 ///
 /// A schema can contain many tables. https://docs.convex.dev/database/schemas
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub(crate) struct ConvexSchema
 {
     pub(crate) tables: Vec<ConvexTable>,
@@ -22,7 +23,7 @@ pub(crate) struct ConvexSchema
 /// A table in the convex schema.
 ///
 /// A table can contain many columns.
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub(crate) struct ConvexTable
 {
     /// The name of the table.
@@ -32,7 +33,7 @@ pub(crate) struct ConvexTable
 }
 
 /// A column in the convex schema.
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub(crate) struct ConvexColumn
 {
     /// The name of the column.
@@ -48,7 +49,7 @@ pub(crate) type ConvexFunctions = Vec<ConvexFunction>;
 /// Convex functions (Queries, Mutations, and Actions)
 ///
 /// https://docs.convex.dev/functions
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub(crate) struct ConvexFunction
 {
     pub(crate) name: String,
@@ -56,7 +57,7 @@ pub(crate) struct ConvexFunction
 }
 
 /// A parameter in a convex function.
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub(crate) struct ConvexFunctionParam
 {
     pub(crate) name: String,
@@ -188,8 +189,7 @@ fn find_define_schema(body: &[JsonValue]) -> Option<&JsonValue>
 }
 
 /// Helper function to extract the column type from a column property
-fn extract_column_type(column_prop: &JsonValue) -> Result<JsonValue, ConvexTypeGeneratorError>
-{
+fn extract_column_type(column_prop: &JsonValue) -> Result<JsonValue, ConvexTypeGeneratorError> {
     // Get the value which contains the type call expression
     let value = &column_prop["value"];
 
@@ -260,6 +260,25 @@ fn extract_column_type(column_prop: &JsonValue) -> Result<JsonValue, ConvexTypeG
                 });
                 let value_type = extract_column_type(&value_type_prop)?;
                 type_obj.insert("valueType".to_string(), value_type);
+            }
+        }
+        "union" => {
+            // For unions, parse all variant types
+            let mut variants = Vec::new();
+            for variant in args {
+                let variant_prop = json!({
+                    "key": { "name": "variant" },
+                    "value": variant
+                });
+                let variant_type = extract_column_type(&variant_prop)?;
+                variants.push(variant_type);
+            }
+            type_obj.insert("variants".to_string(), JsonValue::Array(variants));
+        }
+        "literal" => {
+            // For literals, store the literal value
+            if let Some(literal_value) = args.first() {
+                type_obj.insert("value".to_string(), literal_value.clone());
             }
         }
         // For other types, just include their arguments if any

@@ -1,0 +1,264 @@
+[
+  {
+    "name": "testMutation",
+    "params": [
+      {
+        "name": "saveTest",
+        "data_type": {
+          "type": "string"
+        }
+      }
+    ]
+  },
+  {
+    "name": "testQuery",
+    "params": [
+      {
+        "name": "test",
+        "data_type": {
+          "type": "string"
+        }
+      }
+    ]
+  },
+  {
+    "name": "testQuery22",
+    "params": [
+      {
+        "name": "test",
+        "data_type": {
+          "type": "string"
+        }
+      }
+    ]
+  },
+  {
+    "name": "complexQuery",
+    "params": [
+      {
+        "name": "id",
+        "data_type": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "filters",
+        "data_type": {
+          "elements": {
+            "properties": {
+              "field": {
+                "type": "string"
+              },
+              "operator": {
+                "type": "union",
+                "variants": [
+                  {
+                    "type": "literal",
+                    "value": {
+                      "end": 427,
+                      "start": 423,
+                      "type": "StringLiteral",
+                      "value": "eq"
+                    }
+                  },
+                  {
+                    "type": "literal",
+                    "value": {
+                      "end": 444,
+                      "start": 440,
+                      "type": "StringLiteral",
+                      "value": "gt"
+                    }
+                  },
+                  {
+                    "type": "literal",
+                    "value": {
+                      "end": 461,
+                      "start": 457,
+                      "type": "StringLiteral",
+                      "value": "lt"
+                    }
+                  }
+                ]
+              },
+              "value": {
+                "type": "any"
+              }
+            },
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      {
+        "name": "pagination",
+        "data_type": {
+          "arguments": [
+            {
+              "arguments": [
+                {
+                  "end": 571,
+                  "properties": [
+                    {
+                      "computed": false,
+                      "end": 537,
+                      "key": {
+                        "end": 525,
+                        "name": "limit",
+                        "start": 520,
+                        "type": "Identifier"
+                      },
+                      "kind": "init",
+                      "method": false,
+                      "shorthand": false,
+                      "start": 520,
+                      "type": "ObjectProperty",
+                      "value": {
+                        "arguments": [],
+                        "callee": {
+                          "end": 535,
+                          "object": {
+                            "end": 528,
+                            "name": "v",
+                            "start": 527,
+                            "type": "Identifier"
+                          },
+                          "optional": false,
+                          "property": {
+                            "end": 535,
+                            "name": "number",
+                            "start": 529,
+                            "type": "Identifier"
+                          },
+                          "start": 527,
+                          "type": "StaticMemberExpression"
+                        },
+                        "end": 537,
+                        "optional": false,
+                        "start": 527,
+                        "type": "CallExpression",
+                        "typeParameters": null
+                      }
+                    },
+                    {
+                      "computed": false,
+                      "end": 564,
+                      "key": {
+                        "end": 552,
+                        "name": "offset",
+                        "start": 546,
+                        "type": "Identifier"
+                      },
+                      "kind": "init",
+                      "method": false,
+                      "shorthand": false,
+                      "start": 546,
+                      "type": "ObjectProperty",
+                      "value": {
+                        "arguments": [],
+                        "callee": {
+                          "end": 562,
+                          "object": {
+                            "end": 555,
+                            "name": "v",
+                            "start": 554,
+                            "type": "Identifier"
+                          },
+                          "optional": false,
+                          "property": {
+                            "end": 562,
+                            "name": "number",
+                            "start": 556,
+                            "type": "Identifier"
+                          },
+                          "start": 554,
+                          "type": "StaticMemberExpression"
+                        },
+                        "end": 564,
+                        "optional": false,
+                        "start": 554,
+                        "type": "CallExpression",
+                        "typeParameters": null
+                      }
+                    }
+                  ],
+                  "start": 511,
+                  "type": "ObjectExpression"
+                }
+              ],
+              "callee": {
+                "end": 510,
+                "object": {
+                  "end": 503,
+                  "name": "v",
+                  "start": 502,
+                  "type": "Identifier"
+                },
+                "optional": false,
+                "property": {
+                  "end": 510,
+                  "name": "object",
+                  "start": 504,
+                  "type": "Identifier"
+                },
+                "start": 502,
+                "type": "StaticMemberExpression"
+              },
+              "end": 572,
+              "optional": false,
+              "start": 502,
+              "type": "CallExpression",
+              "typeParameters": null
+            }
+          ],
+          "type": "optional"
+        }
+      },
+      {
+        "name": "sort",
+        "data_type": {
+          "type": "union",
+          "variants": [
+            {
+              "type": "literal",
+              "value": {
+                "end": 609,
+                "start": 604,
+                "type": "StringLiteral",
+                "value": "asc"
+              }
+            },
+            {
+              "type": "literal",
+              "value": {
+                "end": 628,
+                "start": 622,
+                "type": "StringLiteral",
+                "value": "desc"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "nested",
+        "data_type": {
+          "properties": {
+            "deep": {
+              "properties": {
+                "deeper": {
+                  "elements": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "type": "object"
+        }
+      }
+    ]
+  }
+]

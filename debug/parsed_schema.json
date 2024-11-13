@@ -1,0 +1,168 @@
+{
+  "tables": [
+    {
+      "name": "test",
+      "columns": [
+        {
+          "name": "_id",
+          "data_type": {
+            "arguments": [
+              {
+                "end": 264,
+                "start": 258,
+                "type": "StringLiteral",
+                "value": "test"
+              }
+            ],
+            "type": "id"
+          }
+        },
+        {
+          "name": "_null",
+          "data_type": {
+            "type": "null"
+          }
+        },
+        {
+          "name": "int64",
+          "data_type": {
+            "type": "int64"
+          }
+        },
+        {
+          "name": "float64",
+          "data_type": {
+            "type": "number"
+          }
+        },
+        {
+          "name": "boolean",
+          "data_type": {
+            "type": "boolean"
+          }
+        },
+        {
+          "name": "string",
+          "data_type": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "bytes",
+          "data_type": {
+            "type": "bytes"
+          }
+        },
+        {
+          "name": "array",
+          "data_type": {
+            "elements": {
+              "type": "any"
+            },
+            "type": "array"
+          }
+        },
+        {
+          "name": "nested_array",
+          "data_type": {
+            "elements": {
+              "elements": {
+                "type": "any"
+              },
+              "type": "array"
+            },
+            "type": "array"
+          }
+        },
+        {
+          "name": "object",
+          "data_type": {
+            "properties": {
+              "some": {
+                "type": "string"
+              },
+              "value": {
+                "type": "any"
+              }
+            },
+            "type": "object"
+          }
+        },
+        {
+          "name": "nested_object",
+          "data_type": {
+            "properties": {
+              "deep": {
+                "properties": {
+                  "deeper": {
+                    "elements": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                },
+                "type": "object"
+              }
+            },
+            "type": "object"
+          }
+        },
+        {
+          "name": "record",
+          "data_type": {
+            "keyType": {
+              "type": "any"
+            },
+            "type": "record",
+            "valueType": {
+              "type": "any"
+            }
+          }
+        },
+        {
+          "name": "union",
+          "data_type": {
+            "type": "union",
+            "variants": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          }
+        },
+        {
+          "name": "literal",
+          "data_type": {
+            "type": "union",
+            "variants": [
+              {
+                "type": "literal",
+                "value": {
+                  "end": 857,
+                  "start": 852,
+                  "type": "StringLiteral",
+                  "value": "asc"
+                }
+              },
+              {
+                "type": "literal",
+                "value": {
+                  "end": 876,
+                  "start": 870,
+                  "type": "StringLiteral",
+                  "value": "desc"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -7,16 +7,24 @@ export default defineSchema({
     test: defineTable({
       _id: v.id("test"),
       _null: v.null(),
-      int64: v.int64(),
-      float64: v.number(),
-      boolean: v.boolean(),
-      string: v.string(),
-      bytes: v.bytes(),
-      array: v.array(v.any()),
-      object: v.object({
-        some: v.any(),
+      _int64: v.int64(),
+      _float64: v.number(),
+      _boolean: v.boolean(),
+      _string: v.string(),
+      _bytes: v.bytes(),
+      _array: v.array(v.any()),
+      _nested_array: v.array(v.array(v.any())),
+      _object: v.object({
+        some: v.string(),
         value: v.any(),
       }),
-      record: v.record(v.any(), v.any()),
+      _nested_object: v.object({
+        deep: v.object({
+          deeper: v.array(v.string())
+        })
+      }),
+      _record: v.record(v.string(), v.string()),
+      _union: v.union(v.string(), v.number(), v.boolean()),
+      _literal: v.union(v.literal("asc"), v.literal("desc")),
     }),
   });

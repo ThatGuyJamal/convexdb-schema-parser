@@ -20,10 +20,11 @@ categories = ["development-tools", "database", "web-programming"]
 keywords = ["convex", "rust", "typegen", "database", "types"]
 
 # Rust version requirement
-rust-version = "1.70.0"
+# rust-version = "1.70.0"
 
 [dependencies]
 oxc = { version = "0.36.0", features = ["full", "serialize"] }
+serde = { version = "1.0.215", features = ["derive"] }
 serde_json = "1.0.108"
 
 [dev-dependencies]
