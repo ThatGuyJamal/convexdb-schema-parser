@@ -9,7 +9,7 @@ use std::path::PathBuf;
 use std::time::Instant;
 use std::vec;
 
-use convex::{create_functions_ast, create_schema_ast, parse_schema_ast};
+use convex::{create_functions_ast, create_schema_ast, parse_function_ast, parse_schema_ast};
 use errors::ConvexTypeGeneratorError;
 
 /// Configuration for the type generator
@@ -58,8 +58,13 @@ pub fn generate(config: Configuration) -> Result<(), ConvexTypeGeneratorError>
     // .map_err(ConvexTypeGeneratorError::IOError)?;
 
     let parsed_schema = parse_schema_ast(schema_ast)?;
+    let parsed_functions = parse_function_ast(functions_ast)?;
 
+    println!("--------------------------------");
     println!("{:?}", parsed_schema);
+    println!("--------------------------------");
+    println!("{:?}", parsed_functions);
+    println!("--------------------------------");
 
     let elapsed = start_time.elapsed();
 

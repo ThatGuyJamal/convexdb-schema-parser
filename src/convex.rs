@@ -42,15 +42,13 @@ pub(crate) struct ConvexColumn
     pub(crate) data_type: JsonValue,
 }
 
-/// A map of all convex functions.
-///
-/// key: function name
-/// value: function definition
-pub(crate) type ConvexFunctions = HashMap<String, ConvexFunction>;
+/// A collection of all convex functions.
+pub(crate) type ConvexFunctions = Vec<ConvexFunction>;
 
 /// Convex functions (Queries, Mutations, and Actions)
 ///
 /// https://docs.convex.dev/functions
+#[derive(Debug)]
 pub(crate) struct ConvexFunction
 {
     pub(crate) name: String,
@@ -58,6 +56,7 @@ pub(crate) struct ConvexFunction
 }
 
 /// A parameter in a convex function.
+#[derive(Debug)]
 pub(crate) struct ConvexFunctionParam
 {
     pub(crate) name: String,
@@ -274,9 +273,85 @@ fn extract_column_type(column_prop: &JsonValue) -> Result<JsonValue, ConvexTypeG
     Ok(JsonValue::Object(type_obj))
 }
 
-pub(crate) fn parse_function_ast(ast_map: HashMap<String, JsonValue>) -> Result<ConvexFunctions, ConvexTypeGeneratorError>
-{
-    todo!()
+pub(crate) fn parse_function_ast(ast_map: HashMap<String, JsonValue>) -> Result<ConvexFunctions, ConvexTypeGeneratorError> {
+    let mut functions = Vec::new();
+
+    for (file_name, ast) in ast_map {
+        // Get the body array
+        let body = ast["body"]
+            .as_array()
+            .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema("Missing body array".into()))?;
+
+        for node in body {
+            // Look for export declarations
+            if node["type"].as_str() == Some("ExportNamedDeclaration") {
+                if let Some(declaration) = node.get("declaration") {
+                    // Handle variable declarations (const testQuery = query({...}))
+                    if declaration["type"].as_str() == Some("VariableDeclaration") {
+                        if let Some(declarators) = declaration["declarations"].as_array() {
+                            for declarator in declarators {
+                                // Get function name
+                                let name = declarator["id"]["name"]
+                                    .as_str()
+                                    .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema("Missing function name".into()))?;
+
+                                // Get the function call (query/mutation/action)
+                                let init = &declarator["init"];
+                                if init["type"].as_str() == Some("CallExpression") {
+                                    // Get the first argument which contains the function config
+                                    if let Some(args) = init["arguments"].as_array() {
+                                        if let Some(config) = args.first() {
+                                            // Extract function parameters from the args property
+                                            let params = extract_function_params(config)?;
+
+                                            functions.push(ConvexFunction {
+                                                name: name.to_string(),
+                                                params,
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(functions)
+}
+
+/// Helper function to extract function parameters from the function configuration
+fn extract_function_params(config: &JsonValue) -> Result<Vec<ConvexFunctionParam>, ConvexTypeGeneratorError> {
+    let mut params = Vec::new();
+
+    // Get the args object from the function config
+    if let Some(properties) = config["properties"].as_array() {
+        for prop in properties {
+            if prop["key"]["name"].as_str() == Some("args") {
+                // Get the args object value
+                if let Some(args_props) = prop["value"]["properties"].as_array() {
+                    for arg_prop in args_props {
+                        // Get parameter name
+                        let param_name = arg_prop["key"]["name"]
+                            .as_str()
+                            .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema("Invalid parameter name".into()))?;
+
+                        // Get parameter type using the same extraction logic as schema
+                        let param_type = extract_column_type(arg_prop)?;
+
+                        params.push(ConvexFunctionParam {
+                            name: param_name.to_string(),
+                            data_type: param_type,
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(params)
 }
 
 /// Internal helper function to generate an AST from a source file
