@@ -6,13 +6,14 @@ use oxc::diagnostics::OxcDiagnostic;
 use oxc::parser::Parser;
 use oxc::semantic::SemanticBuilder;
 use oxc::span::SourceType;
-use serde_json::Value as JsonValue;
+use serde_json::{json, Value as JsonValue};
 
 use crate::errors::ConvexTypeGeneratorError;
 
 /// The convex schema.
 ///
 /// A schema can contain many tables. https://docs.convex.dev/database/schemas
+#[derive(Debug)]
 pub(crate) struct ConvexSchema
 {
     pub(crate) tables: Vec<ConvexTable>,
@@ -21,6 +22,7 @@ pub(crate) struct ConvexSchema
 /// A table in the convex schema.
 ///
 /// A table can contain many columns.
+#[derive(Debug)]
 pub(crate) struct ConvexTable
 {
     /// The name of the table.
@@ -30,6 +32,7 @@ pub(crate) struct ConvexTable
 }
 
 /// A column in the convex schema.
+#[derive(Debug)]
 pub(crate) struct ConvexColumn
 {
     /// The name of the column.
@@ -84,6 +87,196 @@ pub(crate) fn create_functions_ast(paths: Vec<PathBuf>) -> Result<HashMap<String
     }
 
     Ok(functions)
+}
+
+pub(crate) fn parse_schema_ast(ast: JsonValue) -> Result<ConvexSchema, ConvexTypeGeneratorError>
+{
+    // Get the body array
+    let body = ast["body"]
+        .as_array()
+        .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema("Missing body array".into()))?;
+
+    // Find the defineSchema call
+    let define_schema = find_define_schema(body)
+        .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema("Could not find defineSchema call".into()))?;
+
+    // Get the arguments array of defineSchema
+    let schema_args = define_schema["arguments"]
+        .as_array()
+        .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema("Missing schema arguments".into()))?;
+
+    // Get the first argument which is an object containing table definitions
+    let tables_obj = schema_args
+        .first()
+        .and_then(|arg| arg["properties"].as_array())
+        .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema("Missing table definitions".into()))?;
+
+    let mut tables = Vec::new();
+
+    // Iterate through each table definition
+    for table_prop in tables_obj {
+        // Get the table name
+        let table_name = table_prop["key"]["name"]
+            .as_str()
+            .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema("Invalid table name".into()))?;
+
+        // Get the defineTable call arguments
+        let define_table_args = table_prop["value"]["arguments"]
+            .as_array()
+            .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema("Invalid table definition".into()))?;
+
+        // Get the first argument which contains column definitions
+        let columns_obj = define_table_args
+            .first()
+            .and_then(|arg| arg["properties"].as_array())
+            .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema("Missing column definitions".into()))?;
+
+        let mut columns = Vec::new();
+
+        // Iterate through each column definition
+        for column_prop in columns_obj {
+            // Get column name
+            let column_name = column_prop["key"]["name"]
+                .as_str()
+                .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema("Invalid column name".into()))?;
+
+            // Get column type by looking at the property chain
+            let column_type = extract_column_type(column_prop)?;
+
+            columns.push(ConvexColumn {
+                name: column_name.to_string(),
+                data_type: column_type,
+            });
+        }
+
+        tables.push(ConvexTable {
+            name: table_name.to_string(),
+            columns,
+        });
+    }
+
+    Ok(ConvexSchema { tables })
+}
+
+/// Helper function to find the defineSchema call in the AST
+fn find_define_schema(body: &[JsonValue]) -> Option<&JsonValue>
+{
+    for node in body {
+        // Check if this is an export default declaration
+        if let Some(declaration) = node.get("declaration") {
+            // Check if this is a call expression
+            if declaration["type"].as_str() == Some("CallExpression") {
+                // Check if the callee is defineSchema
+                if let Some(callee) = declaration.get("callee") {
+                    if callee["type"].as_str() == Some("Identifier") && callee["name"].as_str() == Some("defineSchema") {
+                        return Some(declaration);
+                    }
+                }
+            }
+        }
+
+        // Could also be a regular variable declaration or expression
+        // that calls defineSchema
+        if node["type"].as_str() == Some("CallExpression") {
+            if let Some(callee) = node.get("callee") {
+                if callee["type"].as_str() == Some("Identifier") && callee["name"].as_str() == Some("defineSchema") {
+                    return Some(node);
+                }
+            }
+        }
+    }
+    None
+}
+
+/// Helper function to extract the column type from a column property
+fn extract_column_type(column_prop: &JsonValue) -> Result<JsonValue, ConvexTypeGeneratorError>
+{
+    // Get the value which contains the type call expression
+    let value = &column_prop["value"];
+
+    // Get the callee which contains the type information
+    let callee = &value["callee"];
+
+    // The type is in the property name of the StaticMemberExpression
+    let type_name = callee["property"]["name"]
+        .as_str()
+        .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema("Invalid column type".into()))?;
+
+    // Get any arguments passed to the type function
+    let binding = Vec::new();
+    let args = value["arguments"].as_array().unwrap_or(&binding);
+
+    // Create a JSON object representing the type
+    let mut type_obj = serde_json::Map::new();
+    type_obj.insert("type".to_string(), JsonValue::String(type_name.to_string()));
+
+    // Handle nested types
+    match type_name {
+        "array" => {
+            // For arrays, recursively parse the element type
+            if let Some(element_type) = args.first() {
+                // The element type will be another v.type() expression
+                let element_type_prop = json!({
+                    "key": { "name": "element" },
+                    "value": element_type
+                });
+                let parsed_element_type = extract_column_type(&element_type_prop)?;
+                type_obj.insert("elements".to_string(), parsed_element_type);
+            }
+        }
+        "object" => {
+            // For objects, parse each property type
+            if let Some(obj_def) = args.first() {
+                if let Some(properties) = obj_def["properties"].as_array() {
+                    let mut prop_types = serde_json::Map::new();
+
+                    for prop in properties {
+                        let prop_name = prop["key"]["name"]
+                            .as_str()
+                            .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema("Invalid object property name".into()))?;
+
+                        let prop_type = extract_column_type(prop)?;
+                        prop_types.insert(prop_name.to_string(), prop_type);
+                    }
+
+                    type_obj.insert("properties".to_string(), JsonValue::Object(prop_types));
+                }
+            }
+        }
+        "record" => {
+            // For records, parse both key and value types
+            if args.len() >= 2 {
+                // First argument is the key type
+                let key_type_prop = json!({
+                    "key": { "name": "key" },
+                    "value": args[0]
+                });
+                let key_type = extract_column_type(&key_type_prop)?;
+                type_obj.insert("keyType".to_string(), key_type);
+
+                // Second argument is the value type
+                let value_type_prop = json!({
+                    "key": { "name": "value" },
+                    "value": args[1]
+                });
+                let value_type = extract_column_type(&value_type_prop)?;
+                type_obj.insert("valueType".to_string(), value_type);
+            }
+        }
+        // For other types, just include their arguments if any
+        _ => {
+            if !args.is_empty() {
+                type_obj.insert("arguments".to_string(), JsonValue::Array(args.to_vec()));
+            }
+        }
+    }
+
+    Ok(JsonValue::Object(type_obj))
+}
+
+pub(crate) fn parse_function_ast(ast_map: HashMap<String, JsonValue>) -> Result<ConvexFunctions, ConvexTypeGeneratorError>
+{
+    todo!()
 }
 
 /// Internal helper function to generate an AST from a source file

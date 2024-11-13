@@ -16,6 +16,8 @@ pub enum ConvexTypeGeneratorError
     SerializationFailed(serde_json::Error),
     /// An IO error occurred
     IOError(std::io::Error),
+    /// The schema file is invalid
+    InvalidSchema(String),
 }
 
 impl std::fmt::Display for ConvexTypeGeneratorError

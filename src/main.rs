@@ -9,7 +9,7 @@ use std::path::PathBuf;
 use std::time::Instant;
 use std::vec;
 
-use convex::{create_functions_ast, create_schema_ast};
+use convex::{create_functions_ast, create_schema_ast, parse_schema_ast};
 use errors::ConvexTypeGeneratorError;
 
 /// Configuration for the type generator
@@ -48,15 +48,18 @@ pub fn generate(config: Configuration) -> Result<(), ConvexTypeGeneratorError>
     let schema_ast = create_schema_ast(schema_path)?;
     let functions_ast = create_functions_ast(config.function_paths)?;
 
-    // write this ast to a json file
-    std::fs::write("./debug/schema_ast.json", serde_json::to_string_pretty(&schema_ast).unwrap())
-        .map_err(ConvexTypeGeneratorError::IOError)?;
+    // std::fs::write("./debug/schema_ast.json", serde_json::to_string_pretty(&schema_ast).unwrap())
+    //     .map_err(ConvexTypeGeneratorError::IOError)?;
 
-    std::fs::write(
-        "./debug/functions_ast.json",
-        serde_json::to_string_pretty(&functions_ast).unwrap(),
-    )
-    .map_err(ConvexTypeGeneratorError::IOError)?;
+    // std::fs::write(
+    //     "./debug/functions_ast.json",
+    //     serde_json::to_string_pretty(&functions_ast).unwrap(),
+    // )
+    // .map_err(ConvexTypeGeneratorError::IOError)?;
+
+    let parsed_schema = parse_schema_ast(schema_ast)?;
+
+    println!("{:?}", parsed_schema);
 
     let elapsed = start_time.elapsed();
 
