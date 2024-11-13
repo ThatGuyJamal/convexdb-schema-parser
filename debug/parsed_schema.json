@@ -161,6 +161,15 @@
               }
             ]
           }
+        },
+        {
+          "name": "_optional",
+          "data_type": {
+            "inner": {
+              "type": "any"
+            },
+            "type": "optional"
+          }
         }
       ]
     }

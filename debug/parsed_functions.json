@@ -1,16 +1,5 @@
 [
   {
-    "name": "testMutation",
-    "params": [
-      {
-        "name": "saveTest",
-        "data_type": {
-          "type": "string"
-        }
-      }
-    ]
-  },
-  {
     "name": "testQuery",
     "params": [
       {
@@ -19,7 +8,8 @@
           "type": "string"
         }
       }
-    ]
+    ],
+    "type_": "query"
   },
   {
     "name": "testQuery22",
@@ -30,7 +20,8 @@
           "type": "string"
         }
       }
-    ]
+    ],
+    "type_": "query"
   },
   {
     "name": "complexQuery",
@@ -93,124 +84,17 @@
       {
         "name": "pagination",
         "data_type": {
-          "arguments": [
-            {
-              "arguments": [
-                {
-                  "end": 571,
-                  "properties": [
-                    {
-                      "computed": false,
-                      "end": 537,
-                      "key": {
-                        "end": 525,
-                        "name": "limit",
-                        "start": 520,
-                        "type": "Identifier"
-                      },
-                      "kind": "init",
-                      "method": false,
-                      "shorthand": false,
-                      "start": 520,
-                      "type": "ObjectProperty",
-                      "value": {
-                        "arguments": [],
-                        "callee": {
-                          "end": 535,
-                          "object": {
-                            "end": 528,
-                            "name": "v",
-                            "start": 527,
-                            "type": "Identifier"
-                          },
-                          "optional": false,
-                          "property": {
-                            "end": 535,
-                            "name": "number",
-                            "start": 529,
-                            "type": "Identifier"
-                          },
-                          "start": 527,
-                          "type": "StaticMemberExpression"
-                        },
-                        "end": 537,
-                        "optional": false,
-                        "start": 527,
-                        "type": "CallExpression",
-                        "typeParameters": null
-                      }
-                    },
-                    {
-                      "computed": false,
-                      "end": 564,
-                      "key": {
-                        "end": 552,
-                        "name": "offset",
-                        "start": 546,
-                        "type": "Identifier"
-                      },
-                      "kind": "init",
-                      "method": false,
-                      "shorthand": false,
-                      "start": 546,
-                      "type": "ObjectProperty",
-                      "value": {
-                        "arguments": [],
-                        "callee": {
-                          "end": 562,
-                          "object": {
-                            "end": 555,
-                            "name": "v",
-                            "start": 554,
-                            "type": "Identifier"
-                          },
-                          "optional": false,
-                          "property": {
-                            "end": 562,
-                            "name": "number",
-                            "start": 556,
-                            "type": "Identifier"
-                          },
-                          "start": 554,
-                          "type": "StaticMemberExpression"
-                        },
-                        "end": 564,
-                        "optional": false,
-                        "start": 554,
-                        "type": "CallExpression",
-                        "typeParameters": null
-                      }
-                    }
-                  ],
-                  "start": 511,
-                  "type": "ObjectExpression"
-                }
-              ],
-              "callee": {
-                "end": 510,
-                "object": {
-                  "end": 503,
-                  "name": "v",
-                  "start": 502,
-                  "type": "Identifier"
-                },
-                "optional": false,
-                "property": {
-                  "end": 510,
-                  "name": "object",
-                  "start": 504,
-                  "type": "Identifier"
-                },
-                "start": 502,
-                "type": "StaticMemberExpression"
+          "inner": {
+            "properties": {
+              "limit": {
+                "type": "number"
               },
-              "end": 572,
-              "optional": false,
-              "start": 502,
-              "type": "CallExpression",
-              "typeParameters": null
-            }
-          ],
+              "offset": {
+                "type": "number"
+              }
+            },
+            "type": "object"
+          },
           "type": "optional"
         }
       },
@@ -259,6 +143,19 @@
           "type": "object"
         }
       }
-    ]
+    ],
+    "type_": "query"
+  },
+  {
+    "name": "testMutation",
+    "params": [
+      {
+        "name": "saveTest",
+        "data_type": {
+          "type": "string"
+        }
+      }
+    ],
+    "type_": "mutation"
   }
 ]

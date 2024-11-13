@@ -4,11 +4,11 @@
       "declaration": {
         "arguments": [
           {
-            "end": 911,
+            "end": 950,
             "properties": [
               {
                 "computed": false,
-                "end": 905,
+                "end": 944,
                 "key": {
                   "end": 225,
                   "name": "test",
@@ -23,7 +23,7 @@
                 "value": {
                   "arguments": [
                     {
-                      "end": 904,
+                      "end": 943,
                       "properties": [
                         {
                           "computed": false,
@@ -1100,6 +1100,74 @@
                             "type": "CallExpression",
                             "typeParameters": null
                           }
+                        },
+                        {
+                          "computed": false,
+                          "end": 935,
+                          "key": {
+                            "end": 914,
+                            "name": "_optional",
+                            "start": 905,
+                            "type": "Identifier"
+                          },
+                          "kind": "init",
+                          "method": false,
+                          "shorthand": false,
+                          "start": 905,
+                          "type": "ObjectProperty",
+                          "value": {
+                            "arguments": [
+                              {
+                                "arguments": [],
+                                "callee": {
+                                  "end": 932,
+                                  "object": {
+                                    "end": 928,
+                                    "name": "v",
+                                    "start": 927,
+                                    "type": "Identifier"
+                                  },
+                                  "optional": false,
+                                  "property": {
+                                    "end": 932,
+                                    "name": "any",
+                                    "start": 929,
+                                    "type": "Identifier"
+                                  },
+                                  "start": 927,
+                                  "type": "StaticMemberExpression"
+                                },
+                                "end": 934,
+                                "optional": false,
+                                "start": 927,
+                                "type": "CallExpression",
+                                "typeParameters": null
+                              }
+                            ],
+                            "callee": {
+                              "end": 926,
+                              "object": {
+                                "end": 917,
+                                "name": "v",
+                                "start": 916,
+                                "type": "Identifier"
+                              },
+                              "optional": false,
+                              "property": {
+                                "end": 926,
+                                "name": "optional",
+                                "start": 918,
+                                "type": "Identifier"
+                              },
+                              "start": 916,
+                              "type": "StaticMemberExpression"
+                            },
+                            "end": 935,
+                            "optional": false,
+                            "start": 916,
+                            "type": "CallExpression",
+                            "typeParameters": null
+                          }
                         }
                       ],
                       "start": 239,
@@ -1112,7 +1180,7 @@
                     "start": 227,
                     "type": "Identifier"
                   },
-                  "end": 905,
+                  "end": 944,
                   "optional": false,
                   "start": 227,
                   "type": "CallExpression",
@@ -1130,13 +1198,13 @@
           "start": 75,
           "type": "Identifier"
         },
-        "end": 912,
+        "end": 951,
         "optional": false,
         "start": 75,
         "type": "CallExpression",
         "typeParameters": null
       },
-      "end": 913,
+      "end": 952,
       "exported": {
         "end": 74,
         "name": "default",
@@ -1148,7 +1216,7 @@
     }
   ],
   "directives": [],
-  "end": 913,
+  "end": 952,
   "hashbang": null,
   "sourceType": {
     "language": "typescript",

@@ -241,15 +241,34 @@ fn extract_column_type(column_prop: &JsonValue, context: &mut TypeContext) -> Re
 
     // Handle nested types
     match type_name {
+        "optional" => {
+            // For optional types, recursively parse the inner type
+            if let Some(inner_type) = args.first() {
+                let inner_type_prop = json!({
+                    "key": { "name": "inner" },
+                    "value": inner_type
+                });
+                context.type_path.push("inner".to_string());
+                let parsed_inner_type = extract_column_type(&inner_type_prop, context)?;
+                context.type_path.pop();
+                type_obj.insert("inner".to_string(), parsed_inner_type);
+            } else {
+                return Err(ConvexTypeGeneratorError::InvalidSchema {
+                    context: context.type_path.join("."),
+                    details: "Optional type must have an inner type".to_string(),
+                });
+            }
+        }
         "array" => {
             // For arrays, recursively parse the element type
             if let Some(element_type) = args.first() {
-                // The element type will be another v.type() expression
                 let element_type_prop = json!({
                     "key": { "name": "element" },
                     "value": element_type
                 });
+                context.type_path.push("elements".to_string());
                 let parsed_element_type = extract_column_type(&element_type_prop, context)?;
+                context.type_path.pop();
                 type_obj.insert("elements".to_string(), parsed_element_type);
             }
         }
@@ -516,7 +535,7 @@ const VALID_TYPES: &[&str] = &[
     "union",
     "literal",
     "optional",
-    "intersection",
+    "any"
 ];
 
 fn validate_type_name(type_name: &str) -> Result<(), ConvexTypeGeneratorError>
@@ -558,8 +577,8 @@ impl ParseContext
 #[derive(Debug, Default)]
 struct TypeContext
 {
-    /// Stack of type names being processed
-    type_stack: Vec<String>,
+    /// Stack of type paths being processed (includes type name and path)
+    type_stack: Vec<(String, String)>,  // (type_name, full_path)
     /// Current file being processed
     file_name: String,
     /// Current path in the type structure
@@ -579,13 +598,27 @@ impl TypeContext
 
     fn push_type(&mut self, type_name: &str) -> Result<(), ConvexTypeGeneratorError>
     {
-        // Check if this type is already being processed
-        if self.type_stack.contains(&type_name.to_string()) {
-            return Err(ConvexTypeGeneratorError::CircularReference {
-                path: self.type_stack.clone(),
-            });
+        let current_path = self.type_path.join(".");
+        
+        // Only check for circular references in object types
+        // Arrays and other container types can be nested
+        if type_name == "object" {
+            let full_path = if current_path.is_empty() {
+                type_name.to_string()
+            } else {
+                format!("{}.{}", current_path, type_name)
+            };
+
+            // Check if this exact path has been seen before
+            if self.type_stack.iter().any(|(_, path)| path == &full_path) {
+                return Err(ConvexTypeGeneratorError::CircularReference {
+                    path: self.type_stack.iter()
+                        .map(|(_, path)| path.clone())
+                        .collect(),
+                });
+            }
+            self.type_stack.push((type_name.to_string(), full_path));
         }
-        self.type_stack.push(type_name.to_string());
         Ok(())
     }
 
@@ -597,7 +630,6 @@ impl TypeContext
 
 fn check_circular_references(type_obj: &JsonValue, context: &mut TypeContext) -> Result<(), ConvexTypeGeneratorError>
 {
-    // Get the type name
     let type_name = type_obj["type"]
         .as_str()
         .ok_or_else(|| ConvexTypeGeneratorError::InvalidSchema {
@@ -605,11 +637,16 @@ fn check_circular_references(type_obj: &JsonValue, context: &mut TypeContext) ->
             details: "Missing type name".to_string(),
         })?;
 
-    // Push this type onto the stack and check for circles
     context.push_type(type_name)?;
 
-    // Check nested types based on the current type
     match type_name {
+        "optional" => {
+            if let Some(inner) = type_obj.get("inner") {
+                context.type_path.push("inner".to_string());
+                check_circular_references(inner, context)?;
+                context.type_path.pop();
+            }
+        }
         "array" => {
             if let Some(elements) = type_obj.get("elements") {
                 context.type_path.push("elements".to_string());
@@ -654,7 +691,6 @@ fn check_circular_references(type_obj: &JsonValue, context: &mut TypeContext) ->
         _ => {} // Other types don't have nested types
     }
 
-    // Pop this type from the stack
     context.pop_type();
     Ok(())
 }

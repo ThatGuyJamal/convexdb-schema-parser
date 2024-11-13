@@ -26,5 +26,6 @@ export default defineSchema({
       _record: v.record(v.string(), v.string()),
       _union: v.union(v.string(), v.number(), v.boolean()),
       _literal: v.union(v.literal("asc"), v.literal("desc")),
+      _optional: v.optional(v.any()),
     }),
   });
