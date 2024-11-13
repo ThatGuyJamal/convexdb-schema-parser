@@ -4,6 +4,7 @@
 
 ## Features
 
+- Blazing fast AST parsing and type generation
 - Generate Rust types from your ConvexDB schema.ts file
 - Automatically re-generate the types when the schema.ts file changes
 
