@@ -1,0 +1,671 @@
+{
+  "body": [
+    {
+      "declaration": {
+        "arguments": [
+          {
+            "end": 556,
+            "properties": [
+              {
+                "computed": false,
+                "end": 550,
+                "key": {
+                  "end": 182,
+                  "name": "test",
+                  "start": 178,
+                  "type": "Identifier"
+                },
+                "kind": "init",
+                "method": false,
+                "shorthand": false,
+                "start": 178,
+                "type": "ObjectProperty",
+                "value": {
+                  "arguments": [
+                    {
+                      "end": 549,
+                      "properties": [
+                        {
+                          "computed": false,
+                          "end": 222,
+                          "key": {
+                            "end": 208,
+                            "name": "_id",
+                            "start": 205,
+                            "type": "Identifier"
+                          },
+                          "kind": "init",
+                          "method": false,
+                          "shorthand": false,
+                          "start": 205,
+                          "type": "ObjectProperty",
+                          "value": {
+                            "arguments": [
+                              {
+                                "end": 221,
+                                "start": 215,
+                                "type": "StringLiteral",
+                                "value": "test"
+                              }
+                            ],
+                            "callee": {
+                              "end": 214,
+                              "object": {
+                                "end": 211,
+                                "name": "v",
+                                "start": 210,
+                                "type": "Identifier"
+                              },
+                              "optional": false,
+                              "property": {
+                                "end": 214,
+                                "name": "id",
+                                "start": 212,
+                                "type": "Identifier"
+                              },
+                              "start": 210,
+                              "type": "StaticMemberExpression"
+                            },
+                            "end": 222,
+                            "optional": false,
+                            "start": 210,
+                            "type": "CallExpression",
+                            "typeParameters": null
+                          }
+                        },
+                        {
+                          "computed": false,
+                          "end": 246,
+                          "key": {
+                            "end": 236,
+                            "name": "_null",
+                            "start": 231,
+                            "type": "Identifier"
+                          },
+                          "kind": "init",
+                          "method": false,
+                          "shorthand": false,
+                          "start": 231,
+                          "type": "ObjectProperty",
+                          "value": {
+                            "arguments": [],
+                            "callee": {
+                              "end": 244,
+                              "object": {
+                                "end": 239,
+                                "name": "v",
+                                "start": 238,
+                                "type": "Identifier"
+                              },
+                              "optional": false,
+                              "property": {
+                                "end": 244,
+                                "name": "null",
+                                "start": 240,
+                                "type": "Identifier"
+                              },
+                              "start": 238,
+                              "type": "StaticMemberExpression"
+                            },
+                            "end": 246,
+                            "optional": false,
+                            "start": 238,
+                            "type": "CallExpression",
+                            "typeParameters": null
+                          }
+                        },
+                        {
+                          "computed": false,
+                          "end": 271,
+                          "key": {
+                            "end": 260,
+                            "name": "int64",
+                            "start": 255,
+                            "type": "Identifier"
+                          },
+                          "kind": "init",
+                          "method": false,
+                          "shorthand": false,
+                          "start": 255,
+                          "type": "ObjectProperty",
+                          "value": {
+                            "arguments": [],
+                            "callee": {
+                              "end": 269,
+                              "object": {
+                                "end": 263,
+                                "name": "v",
+                                "start": 262,
+                                "type": "Identifier"
+                              },
+                              "optional": false,
+                              "property": {
+                                "end": 269,
+                                "name": "int64",
+                                "start": 264,
+                                "type": "Identifier"
+                              },
+                              "start": 262,
+                              "type": "StaticMemberExpression"
+                            },
+                            "end": 271,
+                            "optional": false,
+                            "start": 262,
+                            "type": "CallExpression",
+                            "typeParameters": null
+                          }
+                        },
+                        {
+                          "computed": false,
+                          "end": 299,
+                          "key": {
+                            "end": 287,
+                            "name": "float64",
+                            "start": 280,
+                            "type": "Identifier"
+                          },
+                          "kind": "init",
+                          "method": false,
+                          "shorthand": false,
+                          "start": 280,
+                          "type": "ObjectProperty",
+                          "value": {
+                            "arguments": [],
+                            "callee": {
+                              "end": 297,
+                              "object": {
+                                "end": 290,
+                                "name": "v",
+                                "start": 289,
+                                "type": "Identifier"
+                              },
+                              "optional": false,
+                              "property": {
+                                "end": 297,
+                                "name": "number",
+                                "start": 291,
+                                "type": "Identifier"
+                              },
+                              "start": 289,
+                              "type": "StaticMemberExpression"
+                            },
+                            "end": 299,
+                            "optional": false,
+                            "start": 289,
+                            "type": "CallExpression",
+                            "typeParameters": null
+                          }
+                        },
+                        {
+                          "computed": false,
+                          "end": 328,
+                          "key": {
+                            "end": 315,
+                            "name": "boolean",
+                            "start": 308,
+                            "type": "Identifier"
+                          },
+                          "kind": "init",
+                          "method": false,
+                          "shorthand": false,
+                          "start": 308,
+                          "type": "ObjectProperty",
+                          "value": {
+                            "arguments": [],
+                            "callee": {
+                              "end": 326,
+                              "object": {
+                                "end": 318,
+                                "name": "v",
+                                "start": 317,
+                                "type": "Identifier"
+                              },
+                              "optional": false,
+                              "property": {
+                                "end": 326,
+                                "name": "boolean",
+                                "start": 319,
+                                "type": "Identifier"
+                              },
+                              "start": 317,
+                              "type": "StaticMemberExpression"
+                            },
+                            "end": 328,
+                            "optional": false,
+                            "start": 317,
+                            "type": "CallExpression",
+                            "typeParameters": null
+                          }
+                        },
+                        {
+                          "computed": false,
+                          "end": 355,
+                          "key": {
+                            "end": 343,
+                            "name": "string",
+                            "start": 337,
+                            "type": "Identifier"
+                          },
+                          "kind": "init",
+                          "method": false,
+                          "shorthand": false,
+                          "start": 337,
+                          "type": "ObjectProperty",
+                          "value": {
+                            "arguments": [],
+                            "callee": {
+                              "end": 353,
+                              "object": {
+                                "end": 346,
+                                "name": "v",
+                                "start": 345,
+                                "type": "Identifier"
+                              },
+                              "optional": false,
+                              "property": {
+                                "end": 353,
+                                "name": "string",
+                                "start": 347,
+                                "type": "Identifier"
+                              },
+                              "start": 345,
+                              "type": "StaticMemberExpression"
+                            },
+                            "end": 355,
+                            "optional": false,
+                            "start": 345,
+                            "type": "CallExpression",
+                            "typeParameters": null
+                          }
+                        },
+                        {
+                          "computed": false,
+                          "end": 380,
+                          "key": {
+                            "end": 369,
+                            "name": "bytes",
+                            "start": 364,
+                            "type": "Identifier"
+                          },
+                          "kind": "init",
+                          "method": false,
+                          "shorthand": false,
+                          "start": 364,
+                          "type": "ObjectProperty",
+                          "value": {
+                            "arguments": [],
+                            "callee": {
+                              "end": 378,
+                              "object": {
+                                "end": 372,
+                                "name": "v",
+                                "start": 371,
+                                "type": "Identifier"
+                              },
+                              "optional": false,
+                              "property": {
+                                "end": 378,
+                                "name": "bytes",
+                                "start": 373,
+                                "type": "Identifier"
+                              },
+                              "start": 371,
+                              "type": "StaticMemberExpression"
+                            },
+                            "end": 380,
+                            "optional": false,
+                            "start": 371,
+                            "type": "CallExpression",
+                            "typeParameters": null
+                          }
+                        },
+                        {
+                          "computed": false,
+                          "end": 412,
+                          "key": {
+                            "end": 394,
+                            "name": "array",
+                            "start": 389,
+                            "type": "Identifier"
+                          },
+                          "kind": "init",
+                          "method": false,
+                          "shorthand": false,
+                          "start": 389,
+                          "type": "ObjectProperty",
+                          "value": {
+                            "arguments": [
+                              {
+                                "arguments": [],
+                                "callee": {
+                                  "end": 409,
+                                  "object": {
+                                    "end": 405,
+                                    "name": "v",
+                                    "start": 404,
+                                    "type": "Identifier"
+                                  },
+                                  "optional": false,
+                                  "property": {
+                                    "end": 409,
+                                    "name": "any",
+                                    "start": 406,
+                                    "type": "Identifier"
+                                  },
+                                  "start": 404,
+                                  "type": "StaticMemberExpression"
+                                },
+                                "end": 411,
+                                "optional": false,
+                                "start": 404,
+                                "type": "CallExpression",
+                                "typeParameters": null
+                              }
+                            ],
+                            "callee": {
+                              "end": 403,
+                              "object": {
+                                "end": 397,
+                                "name": "v",
+                                "start": 396,
+                                "type": "Identifier"
+                              },
+                              "optional": false,
+                              "property": {
+                                "end": 403,
+                                "name": "array",
+                                "start": 398,
+                                "type": "Identifier"
+                              },
+                              "start": 396,
+                              "type": "StaticMemberExpression"
+                            },
+                            "end": 412,
+                            "optional": false,
+                            "start": 396,
+                            "type": "CallExpression",
+                            "typeParameters": null
+                          }
+                        },
+                        {
+                          "computed": false,
+                          "end": 498,
+                          "key": {
+                            "end": 427,
+                            "name": "object",
+                            "start": 421,
+                            "type": "Identifier"
+                          },
+                          "kind": "init",
+                          "method": false,
+                          "shorthand": false,
+                          "start": 421,
+                          "type": "ObjectProperty",
+                          "value": {
+                            "arguments": [
+                              {
+                                "end": 497,
+                                "properties": [
+                                  {
+                                    "computed": false,
+                                    "end": 462,
+                                    "key": {
+                                      "end": 453,
+                                      "name": "some",
+                                      "start": 449,
+                                      "type": "Identifier"
+                                    },
+                                    "kind": "init",
+                                    "method": false,
+                                    "shorthand": false,
+                                    "start": 449,
+                                    "type": "ObjectProperty",
+                                    "value": {
+                                      "arguments": [],
+                                      "callee": {
+                                        "end": 460,
+                                        "object": {
+                                          "end": 456,
+                                          "name": "v",
+                                          "start": 455,
+                                          "type": "Identifier"
+                                        },
+                                        "optional": false,
+                                        "property": {
+                                          "end": 460,
+                                          "name": "any",
+                                          "start": 457,
+                                          "type": "Identifier"
+                                        },
+                                        "start": 455,
+                                        "type": "StaticMemberExpression"
+                                      },
+                                      "end": 462,
+                                      "optional": false,
+                                      "start": 455,
+                                      "type": "CallExpression",
+                                      "typeParameters": null
+                                    }
+                                  },
+                                  {
+                                    "computed": false,
+                                    "end": 487,
+                                    "key": {
+                                      "end": 478,
+                                      "name": "value",
+                                      "start": 473,
+                                      "type": "Identifier"
+                                    },
+                                    "kind": "init",
+                                    "method": false,
+                                    "shorthand": false,
+                                    "start": 473,
+                                    "type": "ObjectProperty",
+                                    "value": {
+                                      "arguments": [],
+                                      "callee": {
+                                        "end": 485,
+                                        "object": {
+                                          "end": 481,
+                                          "name": "v",
+                                          "start": 480,
+                                          "type": "Identifier"
+                                        },
+                                        "optional": false,
+                                        "property": {
+                                          "end": 485,
+                                          "name": "any",
+                                          "start": 482,
+                                          "type": "Identifier"
+                                        },
+                                        "start": 480,
+                                        "type": "StaticMemberExpression"
+                                      },
+                                      "end": 487,
+                                      "optional": false,
+                                      "start": 480,
+                                      "type": "CallExpression",
+                                      "typeParameters": null
+                                    }
+                                  }
+                                ],
+                                "start": 438,
+                                "type": "ObjectExpression"
+                              }
+                            ],
+                            "callee": {
+                              "end": 437,
+                              "object": {
+                                "end": 430,
+                                "name": "v",
+                                "start": 429,
+                                "type": "Identifier"
+                              },
+                              "optional": false,
+                              "property": {
+                                "end": 437,
+                                "name": "object",
+                                "start": 431,
+                                "type": "Identifier"
+                              },
+                              "start": 429,
+                              "type": "StaticMemberExpression"
+                            },
+                            "end": 498,
+                            "optional": false,
+                            "start": 429,
+                            "type": "CallExpression",
+                            "typeParameters": null
+                          }
+                        },
+                        {
+                          "computed": false,
+                          "end": 541,
+                          "key": {
+                            "end": 513,
+                            "name": "record",
+                            "start": 507,
+                            "type": "Identifier"
+                          },
+                          "kind": "init",
+                          "method": false,
+                          "shorthand": false,
+                          "start": 507,
+                          "type": "ObjectProperty",
+                          "value": {
+                            "arguments": [
+                              {
+                                "arguments": [],
+                                "callee": {
+                                  "end": 529,
+                                  "object": {
+                                    "end": 525,
+                                    "name": "v",
+                                    "start": 524,
+                                    "type": "Identifier"
+                                  },
+                                  "optional": false,
+                                  "property": {
+                                    "end": 529,
+                                    "name": "any",
+                                    "start": 526,
+                                    "type": "Identifier"
+                                  },
+                                  "start": 524,
+                                  "type": "StaticMemberExpression"
+                                },
+                                "end": 531,
+                                "optional": false,
+                                "start": 524,
+                                "type": "CallExpression",
+                                "typeParameters": null
+                              },
+                              {
+                                "arguments": [],
+                                "callee": {
+                                  "end": 538,
+                                  "object": {
+                                    "end": 534,
+                                    "name": "v",
+                                    "start": 533,
+                                    "type": "Identifier"
+                                  },
+                                  "optional": false,
+                                  "property": {
+                                    "end": 538,
+                                    "name": "any",
+                                    "start": 535,
+                                    "type": "Identifier"
+                                  },
+                                  "start": 533,
+                                  "type": "StaticMemberExpression"
+                                },
+                                "end": 540,
+                                "optional": false,
+                                "start": 533,
+                                "type": "CallExpression",
+                                "typeParameters": null
+                              }
+                            ],
+                            "callee": {
+                              "end": 523,
+                              "object": {
+                                "end": 516,
+                                "name": "v",
+                                "start": 515,
+                                "type": "Identifier"
+                              },
+                              "optional": false,
+                              "property": {
+                                "end": 523,
+                                "name": "record",
+                                "start": 517,
+                                "type": "Identifier"
+                              },
+                              "start": 515,
+                              "type": "StaticMemberExpression"
+                            },
+                            "end": 541,
+                            "optional": false,
+                            "start": 515,
+                            "type": "CallExpression",
+                            "typeParameters": null
+                          }
+                        }
+                      ],
+                      "start": 196,
+                      "type": "ObjectExpression"
+                    }
+                  ],
+                  "callee": {
+                    "end": 195,
+                    "name": "defineTable",
+                    "start": 184,
+                    "type": "Identifier"
+                  },
+                  "end": 550,
+                  "optional": false,
+                  "start": 184,
+                  "type": "CallExpression",
+                  "typeParameters": null
+                }
+              }
+            ],
+            "start": 45,
+            "type": "ObjectExpression"
+          }
+        ],
+        "callee": {
+          "end": 44,
+          "name": "defineSchema",
+          "start": 32,
+          "type": "Identifier"
+        },
+        "end": 557,
+        "optional": false,
+        "start": 32,
+        "type": "CallExpression",
+        "typeParameters": null
+      },
+      "end": 558,
+      "exported": {
+        "end": 31,
+        "name": "default",
+        "start": 24,
+        "type": "Identifier"
+      },
+      "start": 17,
+      "type": "ExportDefaultDeclaration"
+    }
+  ],
+  "directives": [],
+  "end": 558,
+  "hashbang": null,
+  "sourceType": {
+    "language": "typescript",
+    "moduleKind": "module",
+    "variant": "standard"
+  },
+  "start": 0,
+  "type": "Program"
+}

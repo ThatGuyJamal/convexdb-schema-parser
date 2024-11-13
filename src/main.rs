@@ -44,7 +44,11 @@ pub fn generate(config: Configuration) -> Result<(), ConvexTypeGeneratorError>
         Err(e) => return Err(ConvexTypeGeneratorError::MissingSchemaFile),
     };
 
-    create_convex_schema_ast(schema_path)?;
+    let ast = create_convex_schema_ast(schema_path)?;
+
+    // write this ast to a json file
+    std::fs::write("./debug/ast.json", serde_json::to_string_pretty(&ast).unwrap())
+        .map_err(ConvexTypeGeneratorError::IOError)?;
 
     let elapsed = start_time.elapsed();
 
