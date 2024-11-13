@@ -1,3 +1,5 @@
+mod convex_types;
+
 use convex::ConvexClient;
 
 const CONVEX_URL: &str = "https://notable-orca-705.convex.cloud";

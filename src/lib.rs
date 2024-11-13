@@ -31,8 +31,8 @@ impl Default for Configuration
     fn default() -> Self
     {
         Self {
-            schema_path: PathBuf::from("./convex/schema.ts"),
-            out_file: "./src/convex_types.rs".to_string(),
+            schema_path: PathBuf::from("convex/schema.ts"),
+            out_file: "src/convex_types.rs".to_string(),
             function_paths: Vec::new(),
         }
     }
@@ -43,10 +43,12 @@ pub fn generate(config: Configuration) -> Result<(), ConvexTypeGeneratorError>
 {
     let start_time = Instant::now();
 
-    let schema_path = match config.schema_path.canonicalize() {
-        Ok(path) => path,
-        Err(_) => return Err(ConvexTypeGeneratorError::MissingSchemaFile),
-    };
+    let schema_path = config.schema_path.canonicalize().map_err(|e| {
+        ConvexTypeGeneratorError::IOError {
+            file: config.schema_path.to_string_lossy().to_string(),
+            error: e,
+        }
+    })?;
 
     let schema_ast = create_schema_ast(schema_path)?;
     let functions_ast = create_functions_ast(config.function_paths)?;
@@ -93,6 +95,9 @@ pub fn generate(config: Configuration) -> Result<(), ConvexTypeGeneratorError>
 #[cfg(debug_assertions)]
 fn write_to_file(path: &str, content: &str) -> Result<(), std::io::Error>
 {
+    if let Some(parent) = std::path::Path::new(path).parent() {
+        std::fs::create_dir_all(parent)?;
+    }
     let mut file = std::fs::File::create(path)?;
     file.write_all(content.as_bytes())?;
     Ok(())

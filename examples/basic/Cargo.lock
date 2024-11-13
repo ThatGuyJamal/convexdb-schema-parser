@@ -102,6 +102,8 @@ dependencies = [
  "convex",
  "convex-typegen",
  "dotenvy",
+ "serde",
+ "serde_json",
  "tokio",
 ]
 

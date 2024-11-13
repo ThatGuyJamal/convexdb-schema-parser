@@ -6,7 +6,14 @@ fn main()
     println!("cargo:rerun-if-changed=convex/schema.ts");
     println!("cargo:rerun-if-changed=convex/games.ts");
 
-    let config = Configuration::default();
+    let config = Configuration {
+        function_paths: vec![
+            std::path::PathBuf::from("convex/games.ts"),
+        ],
+        ..Default::default()
+    };
+    
+    // Add games.ts to the function paths
 
     // Generate the types
     match generate(config) {
