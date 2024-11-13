@@ -1,10 +1,12 @@
-use convex_typegen::errors::ConvexTypeGeneratorError;
-use convex_typegen::{Configuration, generate};
 use std::fs;
 use std::path::PathBuf;
+
+use convex_typegen::errors::ConvexTypeGeneratorError;
+use convex_typegen::{generate, Configuration};
 use tempdir::TempDir;
 
-fn setup_test_schema(content: &str) -> (TempDir, PathBuf) {
+fn setup_test_schema(content: &str) -> (TempDir, PathBuf)
+{
     let temp_dir = TempDir::new("convex_schema_test").expect("Failed to create temp directory");
     let schema_path = temp_dir.path().join("schema.ts");
     fs::write(&schema_path, content).expect("Failed to write test schema");
@@ -12,7 +14,8 @@ fn setup_test_schema(content: &str) -> (TempDir, PathBuf) {
 }
 
 #[test]
-fn test_valid_schema() {
+fn test_valid_schema()
+{
     let schema_content = r#"
         import { defineSchema, defineTable } from "convex/schema";
 
@@ -36,7 +39,8 @@ fn test_valid_schema() {
 }
 
 #[test]
-fn test_invalid_schema_syntax() {
+fn test_invalid_schema_syntax()
+{
     let schema_content = r#"
         import { defineSchema, defineTable } from "convex/schema";
 
@@ -62,7 +66,8 @@ fn test_invalid_schema_syntax() {
 }
 
 #[test]
-fn test_missing_schema_file() {
+fn test_missing_schema_file()
+{
     let temp_dir = TempDir::new("convex_typegen_test").expect("Failed to create temp directory");
     let config = Configuration {
         schema_path: temp_dir.path().join("nonexistent.ts"),
@@ -73,4 +78,4 @@ fn test_missing_schema_file() {
         Err(ConvexTypeGeneratorError::MissingSchemaFile { .. }) => (),
         other => panic!("Expected MissingSchemaFile error, got {:?}", other),
     }
-} 
+}

@@ -28,6 +28,20 @@ A blazing fast Rust type generator for [ConvexDB](https://www.convex.dev) schema
 convex-typegen = "0.1.0"
 ```
 
+2. Add the following to your `build.rs` file:
+
+```rust
+use convex_typegen::generate;
+
+fn main() {
+    generate().unwrap();
+}
+```
+
+3. Run `cargo build` to generate the types.
+
+You can watch a demo video [here]() to learn more.
+
 ## Supported Types
 
 - **Basic Types**: `string`, `number`, `boolean`, `null`, `int64`, `bytes`

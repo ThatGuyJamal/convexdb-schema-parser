@@ -31,25 +31,35 @@ impl From<GetGameArgs> for std::collections::BTreeMap<String, serde_json::Value>
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SaveGameArgs
-{
-    pub win_count: Option<f64>,
-    pub loss_count: Option<f64>,
-}
+pub struct WinGameArgs {}
 
-impl SaveGameArgs
+impl WinGameArgs
 {
     /// Returns the fully qualified function path for use with Convex client
-    pub const FUNCTION_PATH: &'static str = "games:saveGame";
+    pub const FUNCTION_PATH: &'static str = "games:winGame";
 }
 
-impl From<SaveGameArgs> for std::collections::BTreeMap<String, serde_json::Value>
+impl From<WinGameArgs> for std::collections::BTreeMap<String, serde_json::Value>
 {
-    fn from(_args: SaveGameArgs) -> Self
+    fn from(_args: WinGameArgs) -> Self
     {
-        let mut map = std::collections::BTreeMap::new();
-        map.insert("win_count".to_string(), serde_json::to_value(_args.win_count).unwrap());
-        map.insert("loss_count".to_string(), serde_json::to_value(_args.loss_count).unwrap());
-        map
+        std::collections::BTreeMap::new()
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LossGameArgs {}
+
+impl LossGameArgs
+{
+    /// Returns the fully qualified function path for use with Convex client
+    pub const FUNCTION_PATH: &'static str = "games:lossGame";
+}
+
+impl From<LossGameArgs> for std::collections::BTreeMap<String, serde_json::Value>
+{
+    fn from(_args: LossGameArgs) -> Self
+    {
+        std::collections::BTreeMap::new()
     }
 }

@@ -1,6 +1,7 @@
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::path::PathBuf;
 
+use convex::Value as ConvexValue;
 use oxc::allocator::Allocator;
 use oxc::diagnostics::OxcDiagnostic;
 use oxc::parser::Parser;
@@ -372,9 +373,7 @@ pub(crate) fn parse_function_ast(ast_map: HashMap<String, JsonValue>) -> Result<
 
     for (file_name, ast) in ast_map {
         // Strip the .ts extension from the file name
-        let file_name = file_name.strip_suffix(".ts")
-            .unwrap_or(&file_name)
-            .to_string();
+        let file_name = file_name.strip_suffix(".ts").unwrap_or(&file_name).to_string();
 
         // Get the body array
         let body = ast["body"]
@@ -701,3 +700,50 @@ fn check_circular_references(type_obj: &JsonValue, context: &mut TypeContext) ->
     context.pop_type();
     Ok(())
 }
+
+/// Trait for converting types into Convex-compatible arguments
+pub trait IntoConvexValue
+{
+    /// Convert the type into a Convex Value
+    fn into_convex_value(self) -> ConvexValue;
+}
+
+impl IntoConvexValue for JsonValue
+{
+    fn into_convex_value(self) -> ConvexValue
+    {
+        match self {
+            JsonValue::Null => ConvexValue::Null,
+            JsonValue::Bool(b) => ConvexValue::Boolean(b),
+            JsonValue::Number(n) => {
+                if let Some(i) = n.as_i64() {
+                    ConvexValue::Int64(i)
+                } else if let Some(f) = n.as_f64() {
+                    ConvexValue::Float64(f)
+                } else {
+                    ConvexValue::Null
+                }
+            }
+            JsonValue::String(s) => ConvexValue::String(s),
+            JsonValue::Array(arr) => ConvexValue::Array(arr.into_iter().map(|v| v.into_convex_value()).collect()),
+            JsonValue::Object(map) => {
+                let converted: BTreeMap<String, ConvexValue> =
+                    map.into_iter().map(|(k, v)| (k, v.into_convex_value())).collect();
+                ConvexValue::Object(converted)
+            }
+        }
+    }
+}
+
+/// Extension trait for ConvexClient to provide a more ergonomic API
+pub trait ConvexClientExt
+{
+    /// Convert function arguments into Convex-compatible format
+    fn prepare_args<T: Into<BTreeMap<String, JsonValue>>>(args: T) -> BTreeMap<String, ConvexValue>
+    {
+        args.into().into_iter().map(|(k, v)| (k, v.into_convex_value())).collect()
+    }
+}
+
+// Implement the trait for ConvexClient reference
+impl ConvexClientExt for convex::ConvexClient {}

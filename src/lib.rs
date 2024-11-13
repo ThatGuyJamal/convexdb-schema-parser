@@ -1,5 +1,5 @@
 mod codegen;
-mod convex;
+pub mod convex;
 pub mod errors;
 
 use std::path::PathBuf;
@@ -75,17 +75,22 @@ pub fn generate(config: Configuration) -> Result<(), ConvexTypeGeneratorError>
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
+mod tests
+{
     use std::fs;
+
     use tempdir::TempDir;
 
-    fn setup_test_dir() -> TempDir {
+    use super::*;
+
+    fn setup_test_dir() -> TempDir
+    {
         TempDir::new("convex_typegen_test").expect("Failed to create temp directory")
     }
 
     #[test]
-    fn test_configuration_default() {
+    fn test_configuration_default()
+    {
         let config = Configuration::default();
         assert_eq!(config.schema_path, PathBuf::from("convex/schema.ts"));
         assert_eq!(config.out_file, "src/convex_types.rs");
@@ -93,7 +98,8 @@ mod tests {
     }
 
     #[test]
-    fn test_missing_schema_file() {
+    fn test_missing_schema_file()
+    {
         let temp_dir = setup_test_dir();
         let config = Configuration {
             schema_path: temp_dir.path().join("nonexistent.ts"),
@@ -107,7 +113,8 @@ mod tests {
     }
 
     #[test]
-    fn test_empty_schema_file() {
+    fn test_empty_schema_file()
+    {
         let temp_dir = setup_test_dir();
         let schema_path = temp_dir.path().join("schema.ts");
         fs::write(&schema_path, "").unwrap();

@@ -1,20 +1,23 @@
-use convex_typegen::{Configuration, generate};
 use std::fs;
 use std::path::PathBuf;
+
+use convex_typegen::{generate, Configuration};
 use tempdir::TempDir;
 
-fn setup_test_env(schema_content: &str) -> (TempDir, PathBuf, PathBuf) {
+fn setup_test_env(schema_content: &str) -> (TempDir, PathBuf, PathBuf)
+{
     let temp_dir = TempDir::new("convex_codegen_test").expect("Failed to create temp directory");
     let schema_path = temp_dir.path().join("schema.ts");
     let output_path = temp_dir.path().join("types.rs");
-    
+
     fs::write(&schema_path, schema_content).expect("Failed to write test schema");
-    
+
     (temp_dir, schema_path, output_path)
 }
 
 #[test]
-fn test_generated_types() {
+fn test_generated_types()
+{
     let schema_content = r#"
         import { defineSchema, defineTable } from "convex/schema";
 
@@ -49,4 +52,4 @@ fn test_generated_types() {
     assert!(generated_code.contains("pub isActive: bool"));
     assert!(generated_code.contains("pub tags: Vec<String>"));
     assert!(generated_code.contains("pub metadata: std::collections::BTreeMap<String, f64>"));
-} 
+}

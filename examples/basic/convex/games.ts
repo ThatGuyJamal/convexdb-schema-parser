@@ -1,4 +1,3 @@
-import { v } from "convex/values";
 import { query, mutation, QueryCtx } from "./_generated/server";
 
 export const getGame = query({
@@ -8,25 +7,43 @@ export const getGame = query({
     },
 });
 
-export const saveGame = mutation({
-    args: {
-        win_count: v.optional(v.number()),
-        loss_count: v.optional(v.number()),
-    },
+export const winGame = mutation({
+    args: {},
     handler: async (ctx, args) => {
         let game = await getGameData(ctx)
 
         if (!game) {
             await ctx.db.insert("games", {
-                win_count: args.win_count ?? 0,
-                loss_count: args.loss_count ?? 0,
+                win_count: 1,
+                loss_count: 0,
             });
         } else {
-            const updateData: any = {};
-            if (args.win_count !== undefined) updateData.win_count = args.win_count + (game.win_count ?? 0);
-            if (args.loss_count !== undefined) updateData.loss_count = args.loss_count + (game.loss_count ?? 0);
-            await ctx.db.patch(game._id, updateData);
+            await ctx.db.patch(game._id, {
+                win_count: game.win_count + 1,
+            });
         }
+
+        return game
+    },
+});
+
+export const lossGame = mutation({
+    args: {},
+    handler: async (ctx, args) => {
+        let game = await getGameData(ctx)
+
+        if (!game) {
+            await ctx.db.insert("games", {
+                win_count: 0,
+                loss_count: 1,
+            });
+        } else {
+            await ctx.db.patch(game._id, {
+                loss_count: game.loss_count + 1,
+            });
+        }
+
+        return game
     },
 });
 
