@@ -1,22 +1,21 @@
-use convex_typegen::generate_convex_types;
+use convex_typegen::{generate, Configuration};
 
 fn main()
 {
+    // Rebuild if the schema or games files change
     println!("cargo:rerun-if-changed=convex/schema.ts");
-    println!("cargo:rerun-if-changed=convex/user.ts");
-    println!("cargo:rerun-if-changed=convex/post.ts");
+    println!("cargo:rerun-if-changed=convex/games.ts");
 
-    let config = convex_typegen::Configuration {
-        convex_schema_path: String::from("./convex/schema.ts"),
-        code_gen_path: String::from("./src/schema.rs"),
+    let config = Configuration {
+        function_paths: vec![std::path::PathBuf::from("convex/games.ts")],
+        ..Default::default()
     };
 
-    match generate_convex_types(Some(&config)) {
-        Ok(_) => {}
-        Err(e) => {
-            panic!("Error: {:?}", e);
-        }
-    }
+    // Add games.ts to the function paths
 
-    println!("Build.rs completed successfully!");
+    // Generate the types
+    match generate(config) {
+        Ok(_) => {}
+        Err(e) => panic!("Typegen failed: {}", e),
+    };
 }

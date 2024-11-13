@@ -1,8 +1,6 @@
 {
-    "cSpell.words": [
-        "btreemap",
-        "maplit",
-        "println",
-        "typegen"
+    "rust-analyzer.linkedProjects": [
+        "./Cargo.toml",
+        "./examples/basic/Cargo.toml"
     ]
-}
+} 

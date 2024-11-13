@@ -1,75 +1,67 @@
-# Convex TypeGen
+# convex-typegen
 
-The [ConvexDB](https://www.convex.dev) Type Generator is a tool for generating the convex [schema.ts](https://docs.convex.dev/database/schemas) into rust types. I created this project
-because for backend work, I love rust more than typescript, and I wanted to be able to use the convex schema in rust.
+A blazing fast Rust type generator for [ConvexDB](https://www.convex.dev) schemas and functions.
 
-So I hope anyone using this library find it helpful. Im always open to adding more features but for now, the main goal is
-to have type-checking in `query` and `mutations` on the backend. Due to complexity's, I don't have argument parsing yet for 
-typescript functions, but I hope to add them in the future.
+## Features
 
-## Install
+- 🚀 **Blazing Fast**: Efficient AST parsing and type generation using oxc
+- 🔄 **Auto-regeneration**: Types automatically update when schema or function files change
+- 🛠️ **Complete Type System**: 
+  - Full schema type generation (tables, columns, unions)
+  - Function argument types for queries, mutations, and actions
+  - Support for all Convex types (arrays, objects, records, literals)
+  - Proper handling of optional fields and complex types
+- 🔒 **Type Safety**: 
+  - Compile-time type checking
+  - Automatic serialization/deserialization
+  - Zero runtime overhead
+- 🎨 **Developer Experience**: 
+  - Clean, idiomatic Rust code generation
+  - Smart function path resolution (e.g., "auth:login")
+  - Detailed documentation for generated types
 
-```bash
-cargo install convex-typegen
-```
+## Quick Start
 
-*From https://crates.io/crates/convex-typegen*
-
-## Edit your Cargo.toml file
-
-After installing, you need to set the library as a build-dependency in your `Cargo.toml` file.
+1. Add dependencies to your `Cargo.toml`:
 
 ```toml
-[build-dependencies]
-convex-typegen = "0.0.1"
+convex-typegen = "0.1.0"
 ```
 
-*Change to the latest version if needed*
-
-## Create a build script
-
-Create a `build.rs` file in your project root with the following contents:
+2. Add the following to your `build.rs` file:
 
 ```rust
-use convex_typegen::generate_convex_types;
+use convex_typegen::generate;
 
-fn main()
-{
-    println!("cargo:rerun-if-changed=convex/schema.ts");
-
-    let config = convex_typegen::Configuration {
-        convex_schema_path: String::from("./convex/schema.ts"),
-        code_gen_path: String::from("./src/schema.rs"),
-    };
-
-    match generate_convex_types(Some(&config)) {
-        Ok(_) => {}
-        Err(e) => {
-            panic!("Error: {:?}", e);
-        }
-    }
-
-    println!("Build.rs completed successfully!");
+fn main() {
+    generate().unwrap();
 }
 ```
-This `build.rs` file will generate the `schema.rs` file in the `src` directory. You can change the path to whatever you want.
 
-## Edit your main.rs file
+3. Run `cargo build` to generate the types.
 
-After your schema file is generated, you need to let your `main.rs` file know about it. Add the following line to your main.rs file:
+You can watch a demo video [here]() to learn more.
 
-```rust
-mod schema;
-```
+## Supported Types
 
-Now your all set! Your convex `query` and `mutations` will be type checked in rust!
+- **Basic Types**: `string`, `number`, `boolean`, `null`, `int64`, `bytes`
+- **Complex Types**: `array`, `object`, `record`, `union`, `optional`
+- **Special Types**: `any`, `literal`, `id`
+- **Custom Types**: Automatic enum generation for union types
 
-## Example Query
+## Contributing
 
-```rust
-client.query(schema::Users::FindAll.to_string(), maplit::btreemap! {}).await;
-```
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first.
 
-# Todo
+## License
 
-- [ ] support function argument parsing/type checking (maybe)
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Built for use with [ConvexDB](https://convex.dev)
+- Powered by [oxc](https://github.com/oxc-project/oxc) for TypeScript parsing
+
+## Related Projects
+
+- [convex rust sdk](https://docs.rs/convex/latest/convex/) - Official Rust client for ConvexDB

@@ -1,114 +1,132 @@
-//! Convex Type Generator
-//!
-//! # Features
-//!
-//! - Generate Rust types from the ConvexDB schema.ts file
-//! - Build.rs integration
-//!
-//! # Example
-//!
-//! Create a `build.rs` file in your project root directory and add the following:
-//! ```ignore
-//! use convex_typegen::generate_convex_types;
-//!
-//! fn main()
-//! {
-//!     println!("cargo:rerun-if-changed=convex/schema.ts");
-//!
-//!     let config = convex_typegen::Configuration {
-//!         convex_schema_path: String::from("./convex/schema.ts"),
-//!         code_gen_path: String::from("./src/schema.rs"),
-//!     };
-//!
-//!     match generate_convex_types(Some(&config)) {
-//!         Ok(_) => {}
-//!         Err(e) => {
-//!             panic!("Error: {:?}", e);
-//!         }
-//!     }
-//! }
-//! ```
-//!
-//! Then you will see a auto-generated `schema.rs` file in your `src` directory.
-//!
-//! You can then query the database in a type-safe manner like so:
-//!
-//! ```ignore
-//! client
-//!     .query(schema::Users::FindAll.to_string(), maplit::btreemap! {})
-//!     .await;
-//! ```
-//! You can view the examples folder in the [repository](https://github.com/ThatGuyJamal/convex-typegen/tree/master/examples) for a more detailed example.
-
-#![allow(dead_code)]
-#![allow(unused_imports)]
-#![allow(unused_variables)]
-#![allow(unused_mut)]
-
-// A Rust Type Generator for the ConvexDB Schema
-//
-// The main goal of this project is to convex our schema.ts file into rust types so that
-// the database can be used in a type-safe manner in rust.
-
-mod ast;
 mod codegen;
-mod parser;
-mod utils;
+pub mod convex;
+pub mod errors;
 
-use core::panic;
-use std::env;
-use std::time::Instant;
+use std::path::PathBuf;
 
-use utils::create_ast;
+use codegen::generate_code;
+use convex::{create_functions_ast, create_schema_ast, parse_function_ast, parse_schema_ast};
+use errors::ConvexTypeGeneratorError;
 
-/// The configuration for the type generator
-#[derive(Debug)]
-pub struct Configuration {
-    /// A path to your schema file
-    pub convex_schema_path: String,
-    pub code_gen_path: String,
+/// Configuration options for the type generator.
+#[derive(Debug, Clone)]
+pub struct Configuration
+{
+    /// Path to the Convex schema file (default: "convex/schema.ts")
+    pub schema_path: PathBuf,
+
+    /// Output file path for generated Rust types (default: "src/convex_types.rs")
+    pub out_file: String,
+
+    /// Paths to Convex function files for generating function argument types
+    pub function_paths: Vec<PathBuf>,
 }
 
-/// Generate the types for the convex project.
+impl Default for Configuration
+{
+    fn default() -> Self
+    {
+        Self {
+            schema_path: PathBuf::from("convex/schema.ts"),
+            out_file: "src/convex_types.rs".to_string(),
+            function_paths: Vec::new(),
+        }
+    }
+}
+
+/// Generates Rust types from Convex schema and function definitions.
 ///
-/// `config` is an optional configuration for the type generator
-pub fn generate_convex_types(config: Option<&Configuration>) -> std::io::Result<()> {
-    let start_time = Instant::now();
+/// # Arguments
+/// * `config` - Configuration options for the type generation process
+///
+/// # Returns
+/// * `Ok(())` if type generation succeeds
+/// * `Err(ConvexTypeGeneratorError)` if an error occurs during generation
+///
+/// # Errors
+/// This function can fail for several reasons:
+/// * Schema file not found
+/// * Invalid schema structure
+/// * IO errors when reading/writing files
+/// * Parse errors in schema or function files
+pub fn generate(config: Configuration) -> Result<(), ConvexTypeGeneratorError>
+{
+    if !config.schema_path.exists() {
+        return Err(ConvexTypeGeneratorError::MissingSchemaFile);
+    }
 
-    let schema_ts_file = match config {
-        Some(config) => config.convex_schema_path.clone(),
-        None => String::from("./convex/schema.ts"),
-    };
+    let schema_path = config
+        .schema_path
+        .canonicalize()
+        .map_err(|e| ConvexTypeGeneratorError::IOError {
+            file: config.schema_path.to_string_lossy().to_string(),
+            error: e,
+        })?;
 
-    let code_gen_path = match config {
-        Some(config) => config.code_gen_path.clone(),
-        None => String::from("./src/schema.rs"),
-    };
+    let schema_ast = create_schema_ast(schema_path)?;
+    let functions_ast = create_functions_ast(config.function_paths)?;
 
-    let ast = match create_ast(&schema_ts_file) {
-        Ok(ast) => ast,
-        Err(e) => {
-            panic!("Error: {:?}", e.iter().map(|e| e.to_string()).collect::<Vec<_>>());
-        }
-    };
+    let parsed_schema = parse_schema_ast(schema_ast)?;
+    let parsed_functions = parse_function_ast(functions_ast)?;
 
-    let schema = match crate::parser::ASTParser::new(&ast).parse() {
-        Ok(schema) => schema,
-        Err(e) => {
-            panic!("Error: {:?}", e);
-        }
-    };
+    generate_code(&config.out_file, (parsed_schema, parsed_functions))?;
 
-    match crate::codegen::Builder::new(schema).generate(&code_gen_path) {
-        Ok(_) => {}
-        Err(e) => {
-            panic!("Error: {:?}", e);
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests
+{
+    use std::fs;
+
+    use tempdir::TempDir;
+
+    use super::*;
+
+    fn setup_test_dir() -> TempDir
+    {
+        TempDir::new("convex_typegen_test").expect("Failed to create temp directory")
+    }
+
+    #[test]
+    fn test_configuration_default()
+    {
+        let config = Configuration::default();
+        assert_eq!(config.schema_path, PathBuf::from("convex/schema.ts"));
+        assert_eq!(config.out_file, "src/convex_types.rs");
+        assert!(config.function_paths.is_empty());
+    }
+
+    #[test]
+    fn test_missing_schema_file()
+    {
+        let temp_dir = setup_test_dir();
+        let config = Configuration {
+            schema_path: temp_dir.path().join("nonexistent.ts"),
+            ..Default::default()
+        };
+
+        match generate(config) {
+            Err(ConvexTypeGeneratorError::MissingSchemaFile) => (),
+            other => panic!("Expected MissingSchemaFile error, got {:?}", other),
         }
     }
 
-    let elapsed = start_time.elapsed();
+    #[test]
+    fn test_empty_schema_file()
+    {
+        let temp_dir = setup_test_dir();
+        let schema_path = temp_dir.path().join("schema.ts");
+        fs::write(&schema_path, "").unwrap();
 
-    println!("Schema Type Generation Completed | Elapsed {:.2?}", elapsed);
+        let config = Configuration {
+            schema_path,
+            ..Default::default()
+        };
 
-    Ok(())
+        match generate(config) {
+            Err(ConvexTypeGeneratorError::EmptySchemaFile { .. }) => (),
+            other => panic!("Expected EmptySchemaFile error, got {:?}", other),
+        }
+    }
 }

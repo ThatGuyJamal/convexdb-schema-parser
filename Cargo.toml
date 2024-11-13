@@ -1,31 +1,45 @@
-workspace = { members = ["examples/basic"] }
 [package]
 name = "convex-typegen"
-description = "A tool for generating Rust types from ConvexDB schema files"
-authors = ["ThatGuyJamal"]
+version = "0.1.0"
+description = "Type safe bindings for ConvexDB in Rust"
+authors = ["Jamal Lyons"]
 license = "MIT"
-repository = "https://github.com/ThatGuyJamal/convex-typegen"
-keywords = []
-readme = "readme.md"
-documentation = "https://docs.rs/convex-typegen/"
-version = "0.0.1"
 edition = "2021"
 
+# Documentation and repository links
+documentation = "https://docs.rs/convex-typegen"
+repository = "https://github.com/JamalLyons/convex-typegen"
+homepage = "https://github.com/JamalLyons/convex-typegen"
+readme = "readme.md"
+
+# Metadata
+categories = ["development-tools", "database", "web-programming"]
+keywords = ["convex", "rust", "typegen", "database", "types"]
+
+# Rust version requirement
+# rust-version = "1.70.0"
+
 [dependencies]
-oxc = { version = "0.3.0", features = ["serde"] }
-serde_json = "1.0.108"
+convex = "0.8.1"
+oxc = { version = "0.36.0", features = ["full", "serialize"] }
+serde = { version = "1.0.215", features = ["derive"] }
+serde_json = "1.0.132"
 
 [dev-dependencies]
 tempdir = "0.3"
 
 [profile.dev]
-opt-level = 1   # Make debug builds run faster
-panic = "abort" # This leads to better optimizations and smaller binaries.
+opt-level = 1      # Make debug builds run faster
+panic = "abort"    # Better optimizations and smaller binaries
+debug = true       # Keep debug symbols for development
 
 # Optimize all dependencies even in debug builds
 [profile.dev.package."*"]
 opt-level = 2
 
 [profile.release]
-# debug = true # good for profilers
-panic = "abort" # This leads to better optimizations and smaller binaries.
+opt-level = 3      # Maximum optimization
+lto = "thin"       # Enable link-time optimization
+codegen-units = 1  # Maximize performance
+panic = "abort"    # Better optimizations and smaller binaries
+strip = true       # Remove debug symbols from the binary
