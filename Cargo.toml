@@ -3,9 +3,9 @@
 
 [package]
 name = "convex-typegen"
-version = "0.0.1"
-description = "A tool for generating Rust types from ConvexDB schema files"
-authors = ["ThatGuyJamal"]
+version = "0.1.0"
+description = "Type safe Rust bindings for ConvexDB"
+authors = ["Jamal Lyons"]
 license = "MIT"
 edition = "2021"
 
