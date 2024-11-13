@@ -2,14 +2,17 @@
 #![allow(unused_imports)]
 #![allow(unused_variables)]
 
+mod codegen;
 mod convex;
 mod errors;
+mod convex_types;
 
 use std::io::Write;
 use std::path::PathBuf;
 use std::time::Instant;
 use std::vec;
 
+use codegen::generate_code;
 use convex::{create_functions_ast, create_schema_ast, parse_function_ast, parse_schema_ast};
 use errors::ConvexTypeGeneratorError;
 
@@ -18,10 +21,8 @@ pub struct Configuration
 {
     /// The path to the schema.ts file
     pub schema_path: PathBuf,
-    /// The schema output file for the generated types
-    pub schema_out_file: String,
-    /// The functions output file for the generated types
-    pub functions_out_file: String,
+    /// The output file for the generated types
+    pub out_file: String,
     /// The paths to the function files
     pub function_paths: Vec<PathBuf>,
 }
@@ -32,8 +33,7 @@ impl Default for Configuration
     {
         Self {
             schema_path: PathBuf::from("./convex/schema.ts"),
-            schema_out_file: "./src/schema.rs".to_string(),
-            functions_out_file: "./src/functions.rs".to_string(),
+            out_file: "./src/convex_types.rs".to_string(),
             function_paths: Vec::new(),
         }
     }
@@ -70,6 +70,8 @@ pub fn generate(config: Configuration) -> Result<(), ConvexTypeGeneratorError>
         &serde_json::to_string_pretty(&parsed_functions).unwrap(),
     )?;
 
+    generate_code(&config.out_file, (parsed_schema, parsed_functions))?;
+
     let elapsed = start_time.elapsed();
     println!("Convex Types generated in {}ms", elapsed.as_millis());
 
@@ -79,10 +81,8 @@ pub fn generate(config: Configuration) -> Result<(), ConvexTypeGeneratorError>
 fn main()
 {
     let config = Configuration {
-        schema_path: PathBuf::from("./convex/schema.ts"),
-        schema_out_file: "./src/schema.rs".to_string(),
-        functions_out_file: "./src/functions.rs".to_string(),
         function_paths: vec![PathBuf::from("./convex/test.ts"), PathBuf::from("./convex/test2.ts")],
+        ..Default::default()
     };
 
     match generate(config) {
@@ -91,6 +91,7 @@ fn main()
     }
 }
 
+#[cfg(debug_assertions)]
 fn write_to_file(path: &str, content: &str) -> Result<(), std::io::Error>
 {
     let mut file = std::fs::File::create(path)?;
