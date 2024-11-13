@@ -1,208 +1,4 @@
 {
-  "test2.ts": {
-    "body": [
-      {
-        "declaration": {
-          "declarations": [
-            {
-              "definite": false,
-              "end": 137,
-              "id": {
-                "end": 42,
-                "name": "testMutation",
-                "optional": false,
-                "start": 30,
-                "type": "Identifier",
-                "typeAnnotation": null
-              },
-              "init": {
-                "arguments": [
-                  {
-                    "end": 136,
-                    "properties": [
-                      {
-                        "computed": false,
-                        "end": 91,
-                        "key": {
-                          "end": 65,
-                          "name": "args",
-                          "start": 61,
-                          "type": "Identifier"
-                        },
-                        "kind": "init",
-                        "method": false,
-                        "shorthand": false,
-                        "start": 61,
-                        "type": "ObjectProperty",
-                        "value": {
-                          "end": 91,
-                          "properties": [
-                            {
-                              "computed": false,
-                              "end": 89,
-                              "key": {
-                                "end": 77,
-                                "name": "saveTest",
-                                "start": 69,
-                                "type": "Identifier"
-                              },
-                              "kind": "init",
-                              "method": false,
-                              "shorthand": false,
-                              "start": 69,
-                              "type": "ObjectProperty",
-                              "value": {
-                                "arguments": [],
-                                "callee": {
-                                  "end": 87,
-                                  "object": {
-                                    "end": 80,
-                                    "name": "v",
-                                    "start": 79,
-                                    "type": "Identifier"
-                                  },
-                                  "optional": false,
-                                  "property": {
-                                    "end": 87,
-                                    "name": "string",
-                                    "start": 81,
-                                    "type": "Identifier"
-                                  },
-                                  "start": 79,
-                                  "type": "StaticMemberExpression"
-                                },
-                                "end": 89,
-                                "optional": false,
-                                "start": 79,
-                                "type": "CallExpression",
-                                "typeParameters": null
-                              }
-                            }
-                          ],
-                          "start": 67,
-                          "type": "ObjectExpression"
-                        }
-                      },
-                      {
-                        "computed": false,
-                        "end": 130,
-                        "key": {
-                          "end": 105,
-                          "name": "handler",
-                          "start": 98,
-                          "type": "Identifier"
-                        },
-                        "kind": "init",
-                        "method": false,
-                        "shorthand": false,
-                        "start": 98,
-                        "type": "ObjectProperty",
-                        "value": {
-                          "async": true,
-                          "body": {
-                            "directives": [],
-                            "end": 130,
-                            "start": 128,
-                            "statements": [],
-                            "type": "FunctionBody"
-                          },
-                          "end": 130,
-                          "expression": false,
-                          "params": {
-                            "end": 124,
-                            "items": [
-                              {
-                                "accessibility": null,
-                                "decorators": [],
-                                "end": 117,
-                                "override": false,
-                                "pattern": {
-                                  "end": 117,
-                                  "name": "ctx",
-                                  "optional": false,
-                                  "start": 114,
-                                  "type": "Identifier",
-                                  "typeAnnotation": null
-                                },
-                                "readonly": false,
-                                "start": 114,
-                                "type": "FormalParameter"
-                              },
-                              {
-                                "accessibility": null,
-                                "decorators": [],
-                                "end": 123,
-                                "override": false,
-                                "pattern": {
-                                  "end": 123,
-                                  "name": "args",
-                                  "optional": false,
-                                  "start": 119,
-                                  "type": "Identifier",
-                                  "typeAnnotation": null
-                                },
-                                "readonly": false,
-                                "start": 119,
-                                "type": "FormalParameter"
-                              }
-                            ],
-                            "kind": "ArrowFormalParameters",
-                            "start": 113,
-                            "type": "FormalParameters"
-                          },
-                          "returnType": null,
-                          "start": 107,
-                          "type": "ArrowFunctionExpression",
-                          "typeParameters": null
-                        }
-                      }
-                    ],
-                    "start": 54,
-                    "type": "ObjectExpression"
-                  }
-                ],
-                "callee": {
-                  "end": 53,
-                  "name": "mutation",
-                  "start": 45,
-                  "type": "Identifier"
-                },
-                "end": 137,
-                "optional": false,
-                "start": 45,
-                "type": "CallExpression",
-                "typeParameters": null
-              },
-              "start": 30,
-              "type": "VariableDeclarator"
-            }
-          ],
-          "declare": false,
-          "end": 138,
-          "kind": "const",
-          "start": 24,
-          "type": "VariableDeclaration"
-        },
-        "end": 138,
-        "exportKind": "value",
-        "source": null,
-        "specifiers": [],
-        "start": 17,
-        "type": "ExportNamedDeclaration",
-        "withClause": null
-      }
-    ],
-    "directives": [],
-    "end": 138,
-    "hashbang": null,
-    "sourceType": {
-      "language": "typescript",
-      "moduleKind": "module",
-      "variant": "standard"
-    },
-    "start": 0,
-    "type": "Program"
-  },
   "test.ts": {
     "body": [
       {
@@ -1509,6 +1305,210 @@
     ],
     "directives": [],
     "end": 782,
+    "hashbang": null,
+    "sourceType": {
+      "language": "typescript",
+      "moduleKind": "module",
+      "variant": "standard"
+    },
+    "start": 0,
+    "type": "Program"
+  },
+  "test2.ts": {
+    "body": [
+      {
+        "declaration": {
+          "declarations": [
+            {
+              "definite": false,
+              "end": 137,
+              "id": {
+                "end": 42,
+                "name": "testMutation",
+                "optional": false,
+                "start": 30,
+                "type": "Identifier",
+                "typeAnnotation": null
+              },
+              "init": {
+                "arguments": [
+                  {
+                    "end": 136,
+                    "properties": [
+                      {
+                        "computed": false,
+                        "end": 91,
+                        "key": {
+                          "end": 65,
+                          "name": "args",
+                          "start": 61,
+                          "type": "Identifier"
+                        },
+                        "kind": "init",
+                        "method": false,
+                        "shorthand": false,
+                        "start": 61,
+                        "type": "ObjectProperty",
+                        "value": {
+                          "end": 91,
+                          "properties": [
+                            {
+                              "computed": false,
+                              "end": 89,
+                              "key": {
+                                "end": 77,
+                                "name": "saveTest",
+                                "start": 69,
+                                "type": "Identifier"
+                              },
+                              "kind": "init",
+                              "method": false,
+                              "shorthand": false,
+                              "start": 69,
+                              "type": "ObjectProperty",
+                              "value": {
+                                "arguments": [],
+                                "callee": {
+                                  "end": 87,
+                                  "object": {
+                                    "end": 80,
+                                    "name": "v",
+                                    "start": 79,
+                                    "type": "Identifier"
+                                  },
+                                  "optional": false,
+                                  "property": {
+                                    "end": 87,
+                                    "name": "string",
+                                    "start": 81,
+                                    "type": "Identifier"
+                                  },
+                                  "start": 79,
+                                  "type": "StaticMemberExpression"
+                                },
+                                "end": 89,
+                                "optional": false,
+                                "start": 79,
+                                "type": "CallExpression",
+                                "typeParameters": null
+                              }
+                            }
+                          ],
+                          "start": 67,
+                          "type": "ObjectExpression"
+                        }
+                      },
+                      {
+                        "computed": false,
+                        "end": 130,
+                        "key": {
+                          "end": 105,
+                          "name": "handler",
+                          "start": 98,
+                          "type": "Identifier"
+                        },
+                        "kind": "init",
+                        "method": false,
+                        "shorthand": false,
+                        "start": 98,
+                        "type": "ObjectProperty",
+                        "value": {
+                          "async": true,
+                          "body": {
+                            "directives": [],
+                            "end": 130,
+                            "start": 128,
+                            "statements": [],
+                            "type": "FunctionBody"
+                          },
+                          "end": 130,
+                          "expression": false,
+                          "params": {
+                            "end": 124,
+                            "items": [
+                              {
+                                "accessibility": null,
+                                "decorators": [],
+                                "end": 117,
+                                "override": false,
+                                "pattern": {
+                                  "end": 117,
+                                  "name": "ctx",
+                                  "optional": false,
+                                  "start": 114,
+                                  "type": "Identifier",
+                                  "typeAnnotation": null
+                                },
+                                "readonly": false,
+                                "start": 114,
+                                "type": "FormalParameter"
+                              },
+                              {
+                                "accessibility": null,
+                                "decorators": [],
+                                "end": 123,
+                                "override": false,
+                                "pattern": {
+                                  "end": 123,
+                                  "name": "args",
+                                  "optional": false,
+                                  "start": 119,
+                                  "type": "Identifier",
+                                  "typeAnnotation": null
+                                },
+                                "readonly": false,
+                                "start": 119,
+                                "type": "FormalParameter"
+                              }
+                            ],
+                            "kind": "ArrowFormalParameters",
+                            "start": 113,
+                            "type": "FormalParameters"
+                          },
+                          "returnType": null,
+                          "start": 107,
+                          "type": "ArrowFunctionExpression",
+                          "typeParameters": null
+                        }
+                      }
+                    ],
+                    "start": 54,
+                    "type": "ObjectExpression"
+                  }
+                ],
+                "callee": {
+                  "end": 53,
+                  "name": "mutation",
+                  "start": 45,
+                  "type": "Identifier"
+                },
+                "end": 137,
+                "optional": false,
+                "start": 45,
+                "type": "CallExpression",
+                "typeParameters": null
+              },
+              "start": 30,
+              "type": "VariableDeclarator"
+            }
+          ],
+          "declare": false,
+          "end": 138,
+          "kind": "const",
+          "start": 24,
+          "type": "VariableDeclaration"
+        },
+        "end": 138,
+        "exportKind": "value",
+        "source": null,
+        "specifiers": [],
+        "start": 17,
+        "type": "ExportNamedDeclaration",
+        "withClause": null
+      }
+    ],
+    "directives": [],
+    "end": 138,
     "hashbang": null,
     "sourceType": {
       "language": "typescript",

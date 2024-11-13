@@ -17,6 +17,9 @@ pub(crate) fn generate_code(path: &str, data: (ConvexSchema, ConvexFunctions)) -
 // You can find more information about convex-typegen at https://github.com/JamalLyons/convex-typegen
 
 #![allow(non_camel_case_types)]
+#![allow(non_snake_case)]
+
+use serde::{Serialize, Deserialize};
 
 "#;
 
@@ -33,6 +36,11 @@ pub(crate) fn generate_code(path: &str, data: (ConvexSchema, ConvexFunctions)) -
     // Then generate the table structs
     for table in data.0.tables {
         code.push_str(&generate_table_code(table));
+    }
+
+    // Generate function argument types
+    for function in data.1 {
+        code.push_str(&generate_function_code(function));
     }
 
     file.write_all(code.as_bytes())?;
@@ -240,9 +248,42 @@ fn generate_union_variants(union_type: &JsonValue) -> Vec<String>
 }
 
 /// Generate the code for a function.
-fn generate_function_code(function: ConvexFunction) -> String
-{
-    todo!()
+fn generate_function_code(function: ConvexFunction) -> String {
+    let mut code = String::new();
+    
+    // Generate the args struct name
+    let struct_name = format!("{}Args", capitalize_first_letter(&function.name));
+    
+    // Generate struct with derive macros
+    code.push_str("#[derive(Debug, Clone, Serialize, Deserialize)]\n");
+    code.push_str(&format!("pub struct {} {{\n", struct_name));
+    
+    // Generate fields for each parameter
+    for param in &function.params {
+        let rust_type = convex_type_to_rust_type(&param.data_type, None, None);
+        code.push_str(&format!("    pub {}: {},\n", param.name, rust_type));
+    }
+    
+    code.push_str("}\n\n");
+    
+    // Generate From implementation to convert to BTreeMap
+    code.push_str(&format!("impl From<{}> for std::collections::BTreeMap<String, serde_json::Value> {{\n", struct_name));
+    code.push_str(&format!("    fn from(args: {}) -> Self {{\n", struct_name));
+    code.push_str("        let mut map = std::collections::BTreeMap::new();\n");
+    
+    // Convert each field to a serde_json::Value and insert into map
+    for param in &function.params {
+        code.push_str(&format!(
+            "        map.insert(\"{}\".to_string(), serde_json::to_value(args.{}).unwrap());\n",
+            param.name, param.name
+        ));
+    }
+    
+    code.push_str("        map\n");
+    code.push_str("    }\n");
+    code.push_str("}\n\n");
+    
+    code
 }
 
 fn capitalize_first_letter(s: &str) -> String
