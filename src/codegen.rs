@@ -1,4 +1,5 @@
 use std::io::{Seek, SeekFrom, Write};
+use serde_json::{json, Value as JsonValue};
 
 use crate::convex::{ConvexFunction, ConvexFunctions, ConvexSchema, ConvexTable};
 use crate::errors::ConvexTypeGeneratorError;
@@ -25,36 +26,88 @@ pub(crate) fn generate_code(path: &str, data: (ConvexSchema, ConvexFunctions)) -
         code.push_str(&generate_table_code(table));
     }
 
-    // for function in data.1 {
-    //     code.push_str(&generate_function_code(function));
-    // }
-
     file.write_all(code.as_bytes())?;
 
     Ok(())
 }
 
 /// Generate the code for a table.
-/// 
-/// A tanle
-fn generate_table_code(table: ConvexTable) -> String
-{
+fn generate_table_code(table: ConvexTable) -> String {
     let mut code = String::new();
 
     let table_struct_name = format!("{}Table", capitalize_first_letter(&table.name));
 
+    code.push_str("#[derive(Debug, Clone)]\n");
     code.push_str(&format!("pub struct {} {{\n", table_struct_name));
 
+    // Generate fields for each column
+    for column in table.columns {
+        let rust_type = convex_type_to_rust_type(&column.data_type);
+        code.push_str(&format!("    pub {}: {},\n", column.name, rust_type));
+    }
+
+    code.push_str("}\n\n");
     code
 }
 
+/// Convert a Convex type to its corresponding Rust type
+fn convex_type_to_rust_type(data_type: &JsonValue) -> String {
+    // Get the base type from the "type" field
+    let type_str = data_type["type"].as_str().unwrap_or("unknown");
+
+    match type_str {
+        "string" => "String".to_string(),
+        "number" => "f64".to_string(),
+        "boolean" => "bool".to_string(),
+        "null" => "()".to_string(),
+        "int64" => "i64".to_string(),
+        "bytes" => "Vec<u8>".to_string(),
+        "any" => "serde_json::Value".to_string(),
+        
+        "array" => {
+            let element_type = convex_type_to_rust_type(&data_type["elements"]);
+            format!("Vec<{}>", element_type)
+        }
+        
+        "object" => {
+            if let Some(props) = data_type["properties"].as_object() {
+                let value_type = props.values().next()
+                    .map(|v| convex_type_to_rust_type(v))
+                    .unwrap_or_else(|| "serde_json::Value".to_string());
+                format!("std::collections::BTreeMap<String, {}>", value_type)
+            } else {
+                "serde_json::Value".to_string()
+            }
+        }
+        
+        "record" => {
+            let key_type = convex_type_to_rust_type(&data_type["keyType"]);
+            let value_type = convex_type_to_rust_type(&data_type["valueType"]);
+            format!("std::collections::HashMap<{}, {}>", key_type, value_type)
+        }
+        
+        "union" => {
+            // For now, treat all unions as strings since they're commonly used for string literals
+            // This could be expanded to generate proper enums
+            "String".to_string()
+        }
+        
+        "optional" => {
+            let inner_type = convex_type_to_rust_type(&data_type["inner"]);
+            format!("Option<{}>", inner_type)
+        }
+        
+        "id" => "String".to_string(),
+        
+        _ => "serde_json::Value".to_string() // fallback for unknown types
+    }
+}
+
 /// Generate the code for a function.
-fn generate_function_code(function: ConvexFunction) -> String
-{
+fn generate_function_code(function: ConvexFunction) -> String {
     todo!()
 }
 
-fn capitalize_first_letter(s: &str) -> String
-{
+fn capitalize_first_letter(s: &str) -> String {
     s.chars().next().unwrap().to_uppercase().collect::<String>() + &s[1..]
 }
