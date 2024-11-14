@@ -22,14 +22,11 @@ A blazing fast Rust type generator for [ConvexDB](https://www.convex.dev) schema
 
 ## Quick Start
 
-1. Add dependencies to your `Cargo.toml`:
+1. Add dependencies using cargo:
 
-```toml
-[dependencies]
-convex-typegen = "0.1.1"
-
-[build-dependencies]
-convex-typegen = "0.1.1"
+```bash
+cargo add convex-typegen
+cargo add --build convex-typegen
 ```
 
 2. Add the following to your `build.rs` file:
