@@ -11,8 +11,6 @@ fn main()
         ..Default::default()
     };
 
-    // Add games.ts to the function paths
-
     // Generate the types
     match generate(config) {
         Ok(_) => {}

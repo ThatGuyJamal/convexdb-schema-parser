@@ -1,7 +1,9 @@
+import { v } from "convex/values";
 import { query, mutation, QueryCtx } from "./_generated/server";
 
 export const getGame = query({
-    args: {},
+    args: {
+    },
     handler: async (ctx, args) => {
         return await getGameData(ctx)
     },

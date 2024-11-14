@@ -44,7 +44,7 @@ fn main() {
 
 3. Run `cargo build` to generate the types.
 
-You can watch a demo video [here]() to learn more.
+You can watch a demo video [here](https://youtu.be/42-Ihov48AU) to learn more.
 
 ## Supported Types
 
