@@ -26,10 +26,10 @@ A blazing fast Rust type generator for [ConvexDB](https://www.convex.dev) schema
 
 ```toml
 [dependencies]
-convex-typegen = "0.1.0"
+convex-typegen = "0.1.1"
 
 [build-dependencies]
-convex-typegen = "0.1.0"
+convex-typegen = "0.1.1"
 ```
 
 2. Add the following to your `build.rs` file:
