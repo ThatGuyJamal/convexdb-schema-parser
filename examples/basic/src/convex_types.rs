@@ -17,7 +17,6 @@ pub struct GetGameArgs {
 }
 
 impl GetGameArgs {
-    /// Returns the fully qualified function path for use with Convex client
     pub const FUNCTION_PATH: &'static str = "games:getGame";
 }
 
@@ -32,7 +31,6 @@ pub struct WinGameArgs {
 }
 
 impl WinGameArgs {
-    /// Returns the fully qualified function path for use with Convex client
     pub const FUNCTION_PATH: &'static str = "games:winGame";
 }
 
@@ -47,7 +45,6 @@ pub struct LossGameArgs {
 }
 
 impl LossGameArgs {
-    /// Returns the fully qualified function path for use with Convex client
     pub const FUNCTION_PATH: &'static str = "games:lossGame";
 }
 

@@ -238,7 +238,6 @@ fn generate_function_code(function: ConvexFunction) -> String
 
     // Add implementation block with static FUNCTION_PATH method
     code.push_str(&format!("impl {} {{\n", struct_name));
-    code.push_str("    /// Returns the fully qualified function path for use with Convex client\n");
     code.push_str("    pub const FUNCTION_PATH: &'static str = ");
     code.push_str(&format!("\"{}:{}\";\n", function.file_name, function.name));
     code.push_str("}\n\n");
