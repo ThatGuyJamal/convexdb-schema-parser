@@ -25,7 +25,7 @@ A blazing fast Rust type generator for [ConvexDB](https://www.convex.dev) schema
 1. Add dependencies using cargo:
 
 ```bash
-cargo add convex-typegen
+cargo add convex-typegen serde serde_json
 cargo add --build convex-typegen
 ```
 
