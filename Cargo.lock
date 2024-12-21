@@ -171,9 +171,9 @@ checksum = "6245d59a3e82a7fc217c5828a6692dbc6dfb63a0c8c90495621f7b9d79704a0e"
 
 [[package]]
 name = "convex"
-version = "0.8.1"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "74cd974dfd205bb454cf2579048fea6c2abd3a71916729234755eea0c97cf5e9"
+checksum = "eb6ca936e4d49f774ae1b92e50a801d9811070b75f6f2c36c7ffa264c4143228"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -206,9 +206,9 @@ dependencies = [
 
 [[package]]
 name = "convex_sync_types"
-version = "0.8.1"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7aef8f58b0af8e8d2d399ca61be2dfd4985d5b08087c7edd84771532650b608c"
+checksum = "91789069386cfc12da3c0435675d12013939e9830729a1fd343b2428351b71c4"
 dependencies = [
  "anyhow",
  "base64 0.13.1",
@@ -1932,9 +1932,9 @@ checksum = "1fc81956842c57dac11422a97c3b8195a1ff727f06e85c84ed2e8aa277c9a0fd"
 
 [[package]]
 name = "url"
-version = "2.5.3"
+version = "2.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8d157f1b96d14500ffdc1f10ba712e780825526c03d9a49b4d0324b0d9113ada"
+checksum = "32f8b686cadd1473f4bd0117a5d28d36b1ade384ea9b5069a1c40aefed7fda60"
 dependencies = [
  "form_urlencoded",
  "idna",
